@@ -1,0 +1,6 @@
+var _user$project$Player$bluePlayer = {name: 'Blue', directionX: 0, directionY: 1};
+var _user$project$Player$redPlayer = {name: 'Red', directionX: 0, directionY: -1};
+var _user$project$Player$Player = F3(
+	function (a, b, c) {
+		return {name: a, directionX: b, directionY: c};
+	});

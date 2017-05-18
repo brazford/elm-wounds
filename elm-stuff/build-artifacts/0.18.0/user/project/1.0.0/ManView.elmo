@@ -1,0 +1,13 @@
+var _user$project$ManView$drawView = F4(
+	function (man, x, y, squareSize) {
+		var color = _elm_lang$core$Native_Utils.eq(man.player, _user$project$Player$bluePlayer) ? 'blue' : 'red';
+		return A2(
+			_elm_lang$svg$Svg$g,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$List$map,
+				function (ability) {
+					return A5(_user$project$AbilityView$drawAbility, x, y, squareSize, color, ability);
+				},
+				man.abilities));
+	});

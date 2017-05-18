@@ -1,0 +1,316 @@
+var _user$project$Man$knightRook = function (player) {
+	return {
+		player: player,
+		name: 'knightRook',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$slideNorth,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$slideEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$slideSouth,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$slideWest,
+						_1: {
+							ctor: '::',
+							_0: _user$project$Ability$jumpNorthNorthEast,
+							_1: {
+								ctor: '::',
+								_0: _user$project$Ability$jumpEastNorthEast,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Ability$jumpEastSouthEast,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Ability$jumpSouthSouthEast,
+										_1: {
+											ctor: '::',
+											_0: _user$project$Ability$jumpSouthSouthWest,
+											_1: {
+												ctor: '::',
+												_0: _user$project$Ability$jumpWestSouthWest,
+												_1: {
+													ctor: '::',
+													_0: _user$project$Ability$jumpWestNorthWest,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Ability$jumpNorthNorthWest,
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$knightBishop = function (player) {
+	return {
+		player: player,
+		name: 'knightBishop',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$slideNorthEast,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$slideSouthEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$slideSouthWest,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$slideNorthWest,
+						_1: {
+							ctor: '::',
+							_0: _user$project$Ability$jumpNorthNorthEast,
+							_1: {
+								ctor: '::',
+								_0: _user$project$Ability$jumpEastNorthEast,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Ability$jumpEastSouthEast,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Ability$jumpSouthSouthEast,
+										_1: {
+											ctor: '::',
+											_0: _user$project$Ability$jumpSouthSouthWest,
+											_1: {
+												ctor: '::',
+												_0: _user$project$Ability$jumpWestSouthWest,
+												_1: {
+													ctor: '::',
+													_0: _user$project$Ability$jumpWestNorthWest,
+													_1: {
+														ctor: '::',
+														_0: _user$project$Ability$jumpNorthNorthWest,
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$knight = function (player) {
+	return {
+		player: player,
+		name: 'knight',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$jumpNorthNorthEast,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$jumpEastNorthEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$jumpEastSouthEast,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$jumpSouthSouthEast,
+						_1: {
+							ctor: '::',
+							_0: _user$project$Ability$jumpSouthSouthWest,
+							_1: {
+								ctor: '::',
+								_0: _user$project$Ability$jumpWestSouthWest,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Ability$jumpWestNorthWest,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Ability$jumpNorthNorthWest,
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$bishop = function (player) {
+	return {
+		player: player,
+		name: 'bishop',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$slideNorthEast,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$slideSouthEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$slideSouthWest,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$slideNorthWest,
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$rook = function (player) {
+	return {
+		player: player,
+		name: 'rook',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$slideNorth,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$slideEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$slideSouth,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$slideWest,
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$queen = function (player) {
+	return {
+		player: player,
+		name: 'queen',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$slideNorth,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$slideNorthEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$slideEast,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$slideSouthEast,
+						_1: {
+							ctor: '::',
+							_0: _user$project$Ability$slideSouth,
+							_1: {
+								ctor: '::',
+								_0: _user$project$Ability$slideSouthWest,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Ability$slideWest,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Ability$slideNorthWest,
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$king = function (player) {
+	return {
+		player: player,
+		name: 'king',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$fatNorth,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$fatNorthEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$fatEast,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$fatSouthEast,
+						_1: {
+							ctor: '::',
+							_0: _user$project$Ability$fatSouth,
+							_1: {
+								ctor: '::',
+								_0: _user$project$Ability$fatSouthWest,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Ability$fatWest,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Ability$fatNorthWest,
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$star = function (player) {
+	return {
+		player: player,
+		name: 'star',
+		abilities: {
+			ctor: '::',
+			_0: _user$project$Ability$stepNorth,
+			_1: {
+				ctor: '::',
+				_0: _user$project$Ability$stepNorthEast,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Ability$stepEast,
+					_1: {
+						ctor: '::',
+						_0: _user$project$Ability$stepSouthEast,
+						_1: {
+							ctor: '::',
+							_0: _user$project$Ability$stepSouth,
+							_1: {
+								ctor: '::',
+								_0: _user$project$Ability$stepSouthWest,
+								_1: {
+									ctor: '::',
+									_0: _user$project$Ability$stepWest,
+									_1: {
+										ctor: '::',
+										_0: _user$project$Ability$stepNorthWest,
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+};
+var _user$project$Man$Man = F3(
+	function (a, b, c) {
+		return {abilities: a, name: b, player: c};
+	});

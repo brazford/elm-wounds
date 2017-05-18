@@ -1,0 +1,62 @@
+var _user$project$Ability$opposite = function (ability) {
+	return _elm_lang$core$Native_Utils.update(
+		ability,
+		{xOffset: 0 - ability.xOffset, yOffset: 0 - ability.yOffset});
+};
+var _user$project$Ability$Ability = F4(
+	function (a, b, c, d) {
+		return {abilityType: a, xOffset: b, yOffset: c, demoted: d};
+	});
+var _user$project$Ability$Fat = {ctor: 'Fat'};
+var _user$project$Ability$fatNorth = {abilityType: _user$project$Ability$Fat, xOffset: 0, yOffset: -1, demoted: false};
+var _user$project$Ability$fatEast = {abilityType: _user$project$Ability$Fat, xOffset: 1, yOffset: 0, demoted: false};
+var _user$project$Ability$fatSouth = {abilityType: _user$project$Ability$Fat, xOffset: 0, yOffset: 1, demoted: false};
+var _user$project$Ability$fatWest = {abilityType: _user$project$Ability$Fat, xOffset: -1, yOffset: 0, demoted: false};
+var _user$project$Ability$fatNorthEast = {abilityType: _user$project$Ability$Fat, xOffset: 1, yOffset: -1, demoted: false};
+var _user$project$Ability$fatSouthEast = {abilityType: _user$project$Ability$Fat, xOffset: 1, yOffset: 1, demoted: false};
+var _user$project$Ability$fatSouthWest = {abilityType: _user$project$Ability$Fat, xOffset: -1, yOffset: 1, demoted: false};
+var _user$project$Ability$fatNorthWest = {abilityType: _user$project$Ability$Fat, xOffset: -1, yOffset: -1, demoted: false};
+var _user$project$Ability$Jump = {ctor: 'Jump'};
+var _user$project$Ability$jumpNorthNorthEast = {abilityType: _user$project$Ability$Jump, xOffset: 1, yOffset: -2, demoted: false};
+var _user$project$Ability$jumpEastNorthEast = {abilityType: _user$project$Ability$Jump, xOffset: 2, yOffset: -1, demoted: false};
+var _user$project$Ability$jumpEastSouthEast = {abilityType: _user$project$Ability$Jump, xOffset: 2, yOffset: 1, demoted: false};
+var _user$project$Ability$jumpSouthSouthEast = {abilityType: _user$project$Ability$Jump, xOffset: 1, yOffset: 2, demoted: false};
+var _user$project$Ability$jumpSouthSouthWest = {abilityType: _user$project$Ability$Jump, xOffset: -1, yOffset: 2, demoted: false};
+var _user$project$Ability$jumpWestSouthWest = {abilityType: _user$project$Ability$Jump, xOffset: -2, yOffset: 1, demoted: false};
+var _user$project$Ability$jumpWestNorthWest = {abilityType: _user$project$Ability$Jump, xOffset: -2, yOffset: -1, demoted: false};
+var _user$project$Ability$jumpNorthNorthWest = {abilityType: _user$project$Ability$Jump, xOffset: -1, yOffset: -2, demoted: false};
+var _user$project$Ability$Slide = {ctor: 'Slide'};
+var _user$project$Ability$slideNorth = {abilityType: _user$project$Ability$Slide, xOffset: 0, yOffset: -1, demoted: false};
+var _user$project$Ability$slideEast = {abilityType: _user$project$Ability$Slide, xOffset: 1, yOffset: 0, demoted: false};
+var _user$project$Ability$slideSouth = {abilityType: _user$project$Ability$Slide, xOffset: 0, yOffset: 1, demoted: false};
+var _user$project$Ability$slideWest = {abilityType: _user$project$Ability$Slide, xOffset: -1, yOffset: 0, demoted: false};
+var _user$project$Ability$slideNorthEast = {abilityType: _user$project$Ability$Slide, xOffset: 1, yOffset: -1, demoted: false};
+var _user$project$Ability$slideSouthEast = {abilityType: _user$project$Ability$Slide, xOffset: 1, yOffset: 1, demoted: false};
+var _user$project$Ability$slideSouthWest = {abilityType: _user$project$Ability$Slide, xOffset: -1, yOffset: 1, demoted: false};
+var _user$project$Ability$slideNorthWest = {abilityType: _user$project$Ability$Slide, xOffset: -1, yOffset: -1, demoted: false};
+var _user$project$Ability$Step = {ctor: 'Step'};
+var _user$project$Ability$stepNorth = {abilityType: _user$project$Ability$Step, xOffset: 0, yOffset: -1, demoted: false};
+var _user$project$Ability$stepEast = {abilityType: _user$project$Ability$Step, xOffset: 1, yOffset: 0, demoted: false};
+var _user$project$Ability$stepSouth = {abilityType: _user$project$Ability$Step, xOffset: 0, yOffset: 1, demoted: false};
+var _user$project$Ability$stepWest = {abilityType: _user$project$Ability$Step, xOffset: -1, yOffset: 0, demoted: false};
+var _user$project$Ability$stepNorthEast = {abilityType: _user$project$Ability$Step, xOffset: 1, yOffset: -1, demoted: false};
+var _user$project$Ability$stepSouthEast = {abilityType: _user$project$Ability$Step, xOffset: 1, yOffset: 1, demoted: false};
+var _user$project$Ability$stepSouthWest = {abilityType: _user$project$Ability$Step, xOffset: -1, yOffset: 1, demoted: false};
+var _user$project$Ability$stepNorthWest = {abilityType: _user$project$Ability$Step, xOffset: -1, yOffset: -1, demoted: false};
+var _user$project$Ability$PieceCaptured = {ctor: 'PieceCaptured'};
+var _user$project$Ability$AbilityDemoted = {ctor: 'AbilityDemoted'};
+var _user$project$Ability$AbilityRemoved = {ctor: 'AbilityRemoved'};
+var _user$project$Ability$getDefenseResult = F2(
+	function (attacker, defender) {
+		var defenseStrength = (_elm_lang$core$Native_Utils.eq(defender.abilityType, _user$project$Ability$Slide) && (!defender.demoted)) ? 2 : 1;
+		var attackStrength = (_elm_lang$core$Native_Utils.eq(attacker.abilityType, _user$project$Ability$Slide) && (!attacker.demoted)) ? 2 : 1;
+		var _p0 = attackStrength - defenseStrength;
+		switch (_p0) {
+			case -1:
+				return _user$project$Ability$AbilityDemoted;
+			case 0:
+				return _user$project$Ability$AbilityRemoved;
+			default:
+				return _user$project$Ability$PieceCaptured;
+		}
+	});

@@ -1,0 +1,8 @@
+var _user$project$Square$Square = F2(
+	function (a, b) {
+		return {squareType: a, occupant: b};
+	});
+var _user$project$Square$BlueExit = {ctor: 'BlueExit'};
+var _user$project$Square$RedExit = {ctor: 'RedExit'};
+var _user$project$Square$OffLimits = {ctor: 'OffLimits'};
+var _user$project$Square$Normal = {ctor: 'Normal'};

@@ -1,0 +1,373 @@
+var _user$project$Wounds$options = {preventDefault: true, stopPropagation: true};
+var _user$project$Wounds$addPieceInHandToList = F6(
+	function (man, board, x, y, squareSize, manViewList) {
+		var centerOffset = (squareSize / 2) | 0;
+		var _p0 = man;
+		if (_p0.ctor === 'Just') {
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				manViewList,
+				{
+					ctor: '::',
+					_0: A4(_user$project$ManView$drawView, _p0._0, x, y, squareSize),
+					_1: {ctor: '[]'}
+				});
+		} else {
+			return manViewList;
+		}
+	});
+var _user$project$Wounds$addManViewToList = F5(
+	function (man, board, index, squareSize, manViewList) {
+		var centerOffset = (squareSize / 2) | 0;
+		var x = (A2(_elm_lang$core$Basics$rem, index, board.width) * squareSize) + centerOffset;
+		var y = (((index / board.width) | 0) * squareSize) + centerOffset;
+		var _p1 = man;
+		if (_p1.ctor === 'Just') {
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				manViewList,
+				{
+					ctor: '::',
+					_0: A4(_user$project$ManView$drawView, _p1._0, x, y, squareSize),
+					_1: {ctor: '[]'}
+				});
+		} else {
+			return manViewList;
+		}
+	});
+var _user$project$Wounds$piecesView = function (model) {
+	var y = model.pieceInHandPosition.y;
+	var x = model.pieceInHandPosition.x;
+	var drawManFunc = function (_p2) {
+		var _p3 = _p2;
+		return A5(
+			_user$project$Wounds$addManViewToList,
+			_p3._1,
+			model.board,
+			_p3._0,
+			model.squareSize,
+			{ctor: '[]'});
+	};
+	var indexedList = _elm_lang$core$Array$toIndexedList(model.board.squares);
+	var indexedOccupiedList = A2(
+		_elm_lang$core$List$filter,
+		function (_p4) {
+			var _p5 = _p4;
+			return !_elm_lang$core$Native_Utils.eq(_p5._1.occupant, _elm_lang$core$Maybe$Nothing);
+		},
+		indexedList);
+	var indexedMenList = A2(
+		_elm_lang$core$List$map,
+		function (_p6) {
+			var _p7 = _p6;
+			return {ctor: '_Tuple2', _0: _p7._0, _1: _p7._1.occupant};
+		},
+		indexedOccupiedList);
+	var manViewListList = A2(_elm_lang$core$List$map, drawManFunc, indexedMenList);
+	var manViewList = _elm_lang$core$List$concat(manViewListList);
+	var manViewListWithPieceInHand = A6(_user$project$Wounds$addPieceInHandToList, model.pieceInHand, model.board, x, y, model.squareSize, manViewList);
+	var squaresRange = A2(
+		_elm_lang$core$List$range,
+		0,
+		_elm_lang$core$Array$length(model.board.squares) - 1);
+	return A2(
+		_elm_lang$svg$Svg$g,
+		{ctor: '[]'},
+		manViewListWithPieceInHand);
+};
+var _user$project$Wounds$chessBoardView = function (model) {
+	var getColor = function (isOdd) {
+		return isOdd ? '#a0caa0' : '#cec';
+	};
+	var drawSquare = F2(
+		function (index, oddness) {
+			return A2(
+				_elm_lang$svg$Svg$rect,
+				{
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$x(
+						_elm_lang$core$Basics$toString(
+							A2(_elm_lang$core$Basics$rem, index, model.board.width) * model.squareSize)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$y(
+							_elm_lang$core$Basics$toString(((index / model.board.width) | 0) * model.squareSize)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$width(
+								_elm_lang$core$Basics$toString(model.squareSize)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$height(
+									_elm_lang$core$Basics$toString(model.squareSize)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$fill(
+										getColor(oddness)),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Attributes$style('stroke:rgb(110,160,110);stroke-width:2'),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}
+				},
+				{ctor: '[]'});
+		});
+	var squaresRange = A2(
+		_elm_lang$core$List$range,
+		0,
+		_elm_lang$core$Array$length(model.board.squares) - 1);
+	var getOddness = function (index) {
+		return _elm_lang$core$Native_Utils.eq(
+			A2(
+				_elm_lang$core$Basics$rem,
+				A2(_elm_lang$core$Basics$rem, index, model.board.height) + ((index / model.board.width) | 0),
+				2),
+			1);
+	};
+	return A2(
+		_elm_lang$svg$Svg$g,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$map,
+			function (index) {
+				return A2(
+					drawSquare,
+					index,
+					getOddness(index));
+			},
+			squaresRange));
+};
+var _user$project$Wounds$px = function (n) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_elm_lang$core$Basics$toString(n),
+		'px');
+};
+var _user$project$Wounds$marginScene = 50;
+var _user$project$Wounds$update = F2(
+	function (msg, model) {
+		var _p8 = A2(_elm_lang$core$Debug$log, 'msg', msg);
+		switch (_p8.ctor) {
+			case 'WindowSize':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							size: A2(_elm_lang$window$Window$Size, _p8._0.width - (2 * _user$project$Wounds$marginScene), (_p8._0.height - 100) - (2 * _user$project$Wounds$marginScene)),
+							squareSize: (model.size.width / model.board.width) | 0
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'MouseMove':
+				var _p10 = _p8._0;
+				var pieceInHand = model.pieceInHand;
+				var one = A2(_elm_lang$core$Debug$log, 'MouseMove ', _p10);
+				var _p9 = pieceInHand;
+				if (_p9.ctor === 'Just') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{pieceInHandPosition: _p10}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'BoardClick':
+				var _p12 = _p8._0;
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p12.x, _p12.y);
+				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
+				var pieceInHand = model.pieceInHand;
+				var one = A2(_elm_lang$core$Debug$log, 'click: model.pieceInHandPosition ', model.pieceInHandPosition);
+				var _p11 = pieceInHand;
+				if (_p11.ctor === 'Just') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								pieceInHand: _elm_lang$core$Maybe$Nothing,
+								board: A3(_user$project$Board$putManAtIndex, _p11._0, index, model.board)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								pieceInHand: occupant,
+								pieceInHandPosition: _p12,
+								board: A2(_user$project$Board$clearManFromIndex, model.board, index)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			default:
+				return _elm_lang$core$Native_Utils.crashCase(
+					'Wounds',
+					{
+						start: {line: 80, column: 5},
+						end: {line: 117, column: 33}
+					},
+					_p8)('update');
+		}
+	});
+var _user$project$Wounds$Position = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _user$project$Wounds$offsetPosition = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Wounds$Position,
+	A2(_elm_lang$core$Json_Decode$field, 'offsetX', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'offsetY', _elm_lang$core$Json_Decode$int));
+var _user$project$Wounds$FileRank = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _user$project$Wounds$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, board: f};
+	});
+var _user$project$Wounds$BoardClick = function (a) {
+	return {ctor: 'BoardClick', _0: a};
+};
+var _user$project$Wounds$MouseMove = function (a) {
+	return {ctor: 'MouseMove', _0: a};
+};
+var _user$project$Wounds$clickCatcher = function (model) {
+	return A2(
+		_elm_lang$svg$Svg$rect,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$x('0'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$y('0'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$width(
+						_elm_lang$core$Basics$toString(model.squareSize * model.board.width)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$height(
+							_elm_lang$core$Basics$toString(model.squareSize * model.board.height)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$style('fill:purple;fill-opacity:0.0'),
+							_1: {
+								ctor: '::',
+								_0: A3(
+									_elm_lang$virtual_dom$VirtualDom$onWithOptions,
+									'click',
+									_user$project$Wounds$options,
+									A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$BoardClick, _user$project$Wounds$offsetPosition)),
+								_1: {
+									ctor: '::',
+									_0: A3(
+										_elm_lang$virtual_dom$VirtualDom$onWithOptions,
+										'mousemove',
+										_user$project$Wounds$options,
+										A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$MouseMove, _user$project$Wounds$offsetPosition)),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{ctor: '[]'});
+};
+var _user$project$Wounds$scene = function (model) {
+	return A2(
+		_elm_lang$svg$Svg$svg,
+		{
+			ctor: '::',
+			_0: _elm_lang$svg$Svg_Attributes$width(
+				_elm_lang$core$Basics$toString(model.board.width * model.squareSize)),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$height(
+					_elm_lang$core$Basics$toString(model.board.height * model.squareSize)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$style(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'margin:',
+							_user$project$Wounds$px(_user$project$Wounds$marginScene))),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		{
+			ctor: '::',
+			_0: _user$project$Wounds$chessBoardView(model),
+			_1: {
+				ctor: '::',
+				_0: _user$project$Wounds$piecesView(model),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Wounds$clickCatcher(model),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _user$project$Wounds$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _user$project$Wounds$scene(model),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(model)),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Wounds$WindowSize = function (a) {
+	return {ctor: 'WindowSize', _0: a};
+};
+var _user$project$Wounds$subscriptions = function (model) {
+	return _elm_lang$window$Window$resizes(_user$project$Wounds$WindowSize);
+};
+var _user$project$Wounds$init = function () {
+	var squareSize = 40;
+	var h = 8;
+	var w = 10;
+	return {
+		ctor: '_Tuple2',
+		_0: {
+			squareSize: squareSize,
+			size: A2(_elm_lang$window$Window$Size, w * squareSize, h * squareSize),
+			mousePosition: A2(_user$project$Wounds$Position, 0, 0),
+			pieceInHandPosition: A2(_user$project$Wounds$Position, 0, 0),
+			pieceInHand: _elm_lang$core$Maybe$Nothing,
+			board: _user$project$Game$setUpPowerChess
+		},
+		_1: A2(_elm_lang$core$Task$perform, _user$project$Wounds$WindowSize, _elm_lang$window$Window$size)
+	};
+}();
+var _user$project$Wounds$main = _elm_lang$html$Html$program(
+	{init: _user$project$Wounds$init, update: _user$project$Wounds$update, view: _user$project$Wounds$view, subscriptions: _user$project$Wounds$subscriptions})();
+var _user$project$Wounds$Error = {ctor: 'Error'};

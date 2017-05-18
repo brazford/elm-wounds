@@ -1,0 +1,77 @@
+var _user$project$Board$getManFromIndex = F2(
+	function (board, index) {
+		var gottenSquare = A2(_elm_lang$core$Array$get, index, board.squares);
+		var _p0 = gottenSquare;
+		if (_p0.ctor === 'Just') {
+			return _p0._0.occupant;
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _user$project$Board$clearManFromIndex = F2(
+	function (board, index) {
+		return _elm_lang$core$Native_Utils.update(
+			board,
+			{
+				squares: A3(
+					_elm_lang$core$Array$set,
+					index,
+					{squareType: _user$project$Square$Normal, occupant: _elm_lang$core$Maybe$Nothing},
+					board.squares)
+			});
+	});
+var _user$project$Board$squareIndex = F3(
+	function (board, file, rank) {
+		return (rank * board.width) + file;
+	});
+var _user$project$Board$getSquare = F3(
+	function (board, file, rank) {
+		var gottenSquare = A2(
+			_elm_lang$core$Array$get,
+			A3(_user$project$Board$squareIndex, board, file, rank),
+			board.squares);
+		var _p1 = gottenSquare;
+		if (_p1.ctor === 'Just') {
+			return _p1._0;
+		} else {
+			return {squareType: _user$project$Square$Normal, occupant: _elm_lang$core$Maybe$Nothing};
+		}
+	});
+var _user$project$Board$getMan = F3(
+	function (board, file, rank) {
+		var theSquare = A3(_user$project$Board$getSquare, board, file, rank);
+		return theSquare.occupant;
+	});
+var _user$project$Board$putMan = F4(
+	function (man, file, rank, board) {
+		var theSquare = A3(_user$project$Board$getSquare, board, file, rank);
+		var occupiedSquare = {
+			occupant: _elm_lang$core$Maybe$Just(man),
+			squareType: theSquare.squareType
+		};
+		return _elm_lang$core$Native_Utils.update(
+			board,
+			{
+				squares: A3(
+					_elm_lang$core$Array$set,
+					A3(_user$project$Board$squareIndex, board, file, rank),
+					occupiedSquare,
+					board.squares)
+			});
+	});
+var _user$project$Board$putManAtIndex = F3(
+	function (man, index, board) {
+		var rank = (index / board.width) | 0;
+		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
+		return A4(_user$project$Board$putMan, man, file, rank, board);
+	});
+var _user$project$Board$squareIndexFromMousePosition = F4(
+	function (board, squareSize, x, y) {
+		var rank = (y / squareSize) | 0;
+		var file = (x / squareSize) | 0;
+		return A3(_user$project$Board$squareIndex, board, file, rank);
+	});
+var _user$project$Board$Board = F3(
+	function (a, b, c) {
+		return {width: a, height: b, squares: c};
+	});
