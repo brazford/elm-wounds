@@ -9638,12 +9638,26 @@ var _user$project$Square$RedExit = {ctor: 'RedExit'};
 var _user$project$Square$OffLimits = {ctor: 'OffLimits'};
 var _user$project$Square$Normal = {ctor: 'Normal'};
 
+var _user$project$Move$Move = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {fromFile: a, fromRank: b, toFile: c, toRank: d, attackingMan: e, defendingMan: f, attackingAbility: g, defendingAbility: h};
+	});
+
+var _user$project$Board$sameTeam = F2(
+	function (maybeMan, man) {
+		var _p0 = maybeMan;
+		if (_p0.ctor === 'Just') {
+			return _elm_lang$core$Native_Utils.eq(_p0._0.player, man.player);
+		} else {
+			return false;
+		}
+	});
 var _user$project$Board$getManFromIndex = F2(
 	function (board, index) {
 		var gottenSquare = A2(_elm_lang$core$Array$get, index, board.squares);
-		var _p0 = gottenSquare;
-		if (_p0.ctor === 'Just') {
-			return _p0._0.occupant;
+		var _p1 = gottenSquare;
+		if (_p1.ctor === 'Just') {
+			return _p1._0.occupant;
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -9670,9 +9684,9 @@ var _user$project$Board$getSquare = F3(
 			_elm_lang$core$Array$get,
 			A3(_user$project$Board$squareIndex, board, file, rank),
 			board.squares);
-		var _p1 = gottenSquare;
-		if (_p1.ctor === 'Just') {
-			return _p1._0;
+		var _p2 = gottenSquare;
+		if (_p2.ctor === 'Just') {
+			return _p2._0;
 		} else {
 			return {squareType: _user$project$Square$Normal, occupant: _elm_lang$core$Maybe$Nothing};
 		}
@@ -9681,6 +9695,40 @@ var _user$project$Board$getMan = F3(
 	function (board, file, rank) {
 		var theSquare = A3(_user$project$Board$getSquare, board, file, rank);
 		return theSquare.occupant;
+	});
+var _user$project$Board$addMoveToList = F5(
+	function (ability, board, index, man, moveList) {
+		var rank = (index / board.width) | 0;
+		var toRank = rank + ability.yOffset;
+		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
+		var toFile = file + ability.xOffset;
+		var defendingMan = A3(_user$project$Board$getMan, board, toFile, toRank);
+		var legal = (_elm_lang$core$Native_Utils.cmp(toFile, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toFile, board.width) < 0) && ((_elm_lang$core$Native_Utils.cmp(toRank, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toRank, board.height) < 0) && (!A2(_user$project$Board$sameTeam, defendingMan, man)))));
+		return legal ? A2(
+			_elm_lang$core$Basics_ops['++'],
+			moveList,
+			{
+				ctor: '::',
+				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, _elm_lang$core$Maybe$Nothing, ability, _elm_lang$core$Maybe$Nothing),
+				_1: {ctor: '[]'}
+			}) : moveList;
+	});
+var _user$project$Board$generateLegalMovesForPiece = F3(
+	function (board, maybeMan, index) {
+		var _p3 = maybeMan;
+		if (_p3.ctor === 'Just') {
+			var moveList = {ctor: '[]'};
+			var man = _p3._0;
+			var moveListList = A2(
+				_elm_lang$core$List$map,
+				function (ability) {
+					return A5(_user$project$Board$addMoveToList, ability, board, index, man, moveList);
+				},
+				man.abilities);
+			return _elm_lang$core$List$concat(moveListList);
+		} else {
+			return {ctor: '[]'};
+		}
 	});
 var _user$project$Board$putMan = F4(
 	function (man, file, rank, board) {
@@ -10029,6 +10077,47 @@ var _user$project$Wounds$piecesView = function (model) {
 		{ctor: '[]'},
 		manViewListWithPieceInHand);
 };
+var _user$project$Wounds$legalMovesView = function (model) {
+	var hiliteSquare = function (move) {
+		return A2(
+			_elm_lang$svg$Svg$rect,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$x(
+					_elm_lang$core$Basics$toString(move.toFile * model.squareSize)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$y(
+						_elm_lang$core$Basics$toString(move.toRank * model.squareSize)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$width(
+							_elm_lang$core$Basics$toString(model.squareSize)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$height(
+								_elm_lang$core$Basics$toString(model.squareSize)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$style('stroke:rgb(255,0,0);stroke-width:2;fill-opacity:0.0'),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			},
+			{ctor: '[]'});
+	};
+	return A2(
+		_elm_lang$svg$Svg$g,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$map,
+			function (move) {
+				return hiliteSquare(move);
+			},
+			model.legalMoves));
+};
 var _user$project$Wounds$chessBoardView = function (model) {
 	var getColor = function (isOdd) {
 		return isOdd ? '#a0caa0' : '#cec';
@@ -10104,7 +10193,7 @@ var _user$project$Wounds$px = function (n) {
 var _user$project$Wounds$marginScene = 50;
 var _user$project$Wounds$update = F2(
 	function (msg, model) {
-		var _p8 = A2(_elm_lang$core$Debug$log, 'msg', msg);
+		var _p8 = msg;
 		switch (_p8.ctor) {
 			case 'WindowSize':
 				return {
@@ -10117,28 +10206,51 @@ var _user$project$Wounds$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'MouseMove':
-				var _p10 = _p8._0;
+			case 'BoardMouseMove':
 				var pieceInHand = model.pieceInHand;
-				var one = A2(_elm_lang$core$Debug$log, 'MouseMove ', _p10);
 				var _p9 = pieceInHand;
 				if (_p9.ctor === 'Just') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{pieceInHandPosition: _p10}),
+							{pieceInHandPosition: _p8._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			case 'BoardClick':
+			case 'BoardMouseDown':
+				var _p10 = _p8._0;
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p10.x, _p10.y);
+				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
+				var pieceInHand = model.pieceInHand;
+				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseDown: model.pieceInHandPosition ', model.pieceInHandPosition);
+				if (!_elm_lang$core$Native_Utils.eq(occupant, _elm_lang$core$Maybe$Nothing)) {
+					var legalMoves = A3(_user$project$Board$generateLegalMovesForPiece, model.board, occupant, index);
+					return (_elm_lang$core$Native_Utils.cmp(
+						_elm_lang$core$List$length(legalMoves),
+						0) > 0) ? {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								pieceInHand: occupant,
+								pieceInHandPosition: _p10,
+								board: A2(_user$project$Board$clearManFromIndex, model.board, index),
+								legalMoves: legalMoves
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'BoardMouseUp':
 				var _p12 = _p8._0;
 				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p12.x, _p12.y);
 				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
 				var pieceInHand = model.pieceInHand;
-				var one = A2(_elm_lang$core$Debug$log, 'click: model.pieceInHandPosition ', model.pieceInHandPosition);
+				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseUp: model.pieceInHandPosition ', model.pieceInHandPosition);
 				var _p11 = pieceInHand;
 				if (_p11.ctor === 'Just') {
 					return {
@@ -10147,29 +10259,20 @@ var _user$project$Wounds$update = F2(
 							model,
 							{
 								pieceInHand: _elm_lang$core$Maybe$Nothing,
-								board: A3(_user$project$Board$putManAtIndex, _p11._0, index, model.board)
+								board: A3(_user$project$Board$putManAtIndex, _p11._0, index, model.board),
+								legalMoves: {ctor: '[]'}
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								pieceInHand: occupant,
-								pieceInHandPosition: _p12,
-								board: A2(_user$project$Board$clearManFromIndex, model.board, index)
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			default:
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 80, column: 5},
-						end: {line: 117, column: 33}
+						start: {line: 83, column: 5},
+						end: {line: 142, column: 33}
 					},
 					_p8)('update');
 		}
@@ -10187,15 +10290,18 @@ var _user$project$Wounds$FileRank = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
-var _user$project$Wounds$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, board: f};
+var _user$project$Wounds$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, board: f, legalMoves: g};
 	});
-var _user$project$Wounds$BoardClick = function (a) {
-	return {ctor: 'BoardClick', _0: a};
+var _user$project$Wounds$BoardMouseUp = function (a) {
+	return {ctor: 'BoardMouseUp', _0: a};
 };
-var _user$project$Wounds$MouseMove = function (a) {
-	return {ctor: 'MouseMove', _0: a};
+var _user$project$Wounds$BoardMouseDown = function (a) {
+	return {ctor: 'BoardMouseDown', _0: a};
+};
+var _user$project$Wounds$BoardMouseMove = function (a) {
+	return {ctor: 'BoardMouseMove', _0: a};
 };
 var _user$project$Wounds$clickCatcher = function (model) {
 	return A2(
@@ -10221,17 +10327,25 @@ var _user$project$Wounds$clickCatcher = function (model) {
 								ctor: '::',
 								_0: A3(
 									_elm_lang$virtual_dom$VirtualDom$onWithOptions,
-									'click',
+									'mousedown',
 									_user$project$Wounds$options,
-									A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$BoardClick, _user$project$Wounds$offsetPosition)),
+									A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$BoardMouseDown, _user$project$Wounds$offsetPosition)),
 								_1: {
 									ctor: '::',
 									_0: A3(
 										_elm_lang$virtual_dom$VirtualDom$onWithOptions,
-										'mousemove',
+										'mouseup',
 										_user$project$Wounds$options,
-										A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$MouseMove, _user$project$Wounds$offsetPosition)),
-									_1: {ctor: '[]'}
+										A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$BoardMouseUp, _user$project$Wounds$offsetPosition)),
+									_1: {
+										ctor: '::',
+										_0: A3(
+											_elm_lang$virtual_dom$VirtualDom$onWithOptions,
+											'mousemove',
+											_user$project$Wounds$options,
+											A2(_elm_lang$core$Json_Decode$map, _user$project$Wounds$BoardMouseMove, _user$project$Wounds$offsetPosition)),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
@@ -10268,11 +10382,15 @@ var _user$project$Wounds$scene = function (model) {
 			_0: _user$project$Wounds$chessBoardView(model),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Wounds$piecesView(model),
+				_0: _user$project$Wounds$legalMovesView(model),
 				_1: {
 					ctor: '::',
-					_0: _user$project$Wounds$clickCatcher(model),
-					_1: {ctor: '[]'}
+					_0: _user$project$Wounds$piecesView(model),
+					_1: {
+						ctor: '::',
+						_0: _user$project$Wounds$clickCatcher(model),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});
@@ -10317,7 +10435,8 @@ var _user$project$Wounds$init = function () {
 			mousePosition: A2(_user$project$Wounds$Position, 0, 0),
 			pieceInHandPosition: A2(_user$project$Wounds$Position, 0, 0),
 			pieceInHand: _elm_lang$core$Maybe$Nothing,
-			board: _user$project$Game$setUpPowerChess
+			board: _user$project$Game$setUpPowerChess,
+			legalMoves: {ctor: '[]'}
 		},
 		_1: A2(_elm_lang$core$Task$perform, _user$project$Wounds$WindowSize, _elm_lang$window$Window$size)
 	};

@@ -1,9 +1,18 @@
+var _user$project$Board$sameTeam = F2(
+	function (maybeMan, man) {
+		var _p0 = maybeMan;
+		if (_p0.ctor === 'Just') {
+			return _elm_lang$core$Native_Utils.eq(_p0._0.player, man.player);
+		} else {
+			return false;
+		}
+	});
 var _user$project$Board$getManFromIndex = F2(
 	function (board, index) {
 		var gottenSquare = A2(_elm_lang$core$Array$get, index, board.squares);
-		var _p0 = gottenSquare;
-		if (_p0.ctor === 'Just') {
-			return _p0._0.occupant;
+		var _p1 = gottenSquare;
+		if (_p1.ctor === 'Just') {
+			return _p1._0.occupant;
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -30,9 +39,9 @@ var _user$project$Board$getSquare = F3(
 			_elm_lang$core$Array$get,
 			A3(_user$project$Board$squareIndex, board, file, rank),
 			board.squares);
-		var _p1 = gottenSquare;
-		if (_p1.ctor === 'Just') {
-			return _p1._0;
+		var _p2 = gottenSquare;
+		if (_p2.ctor === 'Just') {
+			return _p2._0;
 		} else {
 			return {squareType: _user$project$Square$Normal, occupant: _elm_lang$core$Maybe$Nothing};
 		}
@@ -41,6 +50,40 @@ var _user$project$Board$getMan = F3(
 	function (board, file, rank) {
 		var theSquare = A3(_user$project$Board$getSquare, board, file, rank);
 		return theSquare.occupant;
+	});
+var _user$project$Board$addMoveToList = F5(
+	function (ability, board, index, man, moveList) {
+		var rank = (index / board.width) | 0;
+		var toRank = rank + ability.yOffset;
+		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
+		var toFile = file + ability.xOffset;
+		var defendingMan = A3(_user$project$Board$getMan, board, toFile, toRank);
+		var legal = (_elm_lang$core$Native_Utils.cmp(toFile, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toFile, board.width) < 0) && ((_elm_lang$core$Native_Utils.cmp(toRank, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toRank, board.height) < 0) && (!A2(_user$project$Board$sameTeam, defendingMan, man)))));
+		return legal ? A2(
+			_elm_lang$core$Basics_ops['++'],
+			moveList,
+			{
+				ctor: '::',
+				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, _elm_lang$core$Maybe$Nothing, ability, _elm_lang$core$Maybe$Nothing),
+				_1: {ctor: '[]'}
+			}) : moveList;
+	});
+var _user$project$Board$generateLegalMovesForPiece = F3(
+	function (board, maybeMan, index) {
+		var _p3 = maybeMan;
+		if (_p3.ctor === 'Just') {
+			var moveList = {ctor: '[]'};
+			var man = _p3._0;
+			var moveListList = A2(
+				_elm_lang$core$List$map,
+				function (ability) {
+					return A5(_user$project$Board$addMoveToList, ability, board, index, man, moveList);
+				},
+				man.abilities);
+			return _elm_lang$core$List$concat(moveListList);
+		} else {
+			return {ctor: '[]'};
+		}
 	});
 var _user$project$Board$putMan = F4(
 	function (man, file, rank, board) {

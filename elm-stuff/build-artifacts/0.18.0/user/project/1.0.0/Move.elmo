@@ -1,0 +1,4 @@
+var _user$project$Move$Move = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {fromFile: a, fromRank: b, toFile: c, toRank: d, attackingMan: e, defendingMan: f, attackingAbility: g, defendingAbility: h};
+	});

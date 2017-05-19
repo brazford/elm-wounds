@@ -2,6 +2,8 @@ module Board exposing (..)
 import Array exposing (..)
 import Man exposing (Man)
 import Square exposing (..)
+import Move exposing (..)
+import Ability exposing (..)
 
 
 type alias Board =
@@ -77,3 +79,44 @@ getManFromIndex board index =
         gottenSquare.occupant
       Nothing ->
         Nothing
+
+
+sameTeam : Maybe Man -> Man -> Bool
+sameTeam maybeMan man =
+  case maybeMan of
+    Just maybeMan ->
+      maybeMan.player == man.player
+    _ ->
+      False
+
+
+addMoveToList : Ability -> Board -> Int -> Man -> List Move -> List Move
+addMoveToList ability board index man moveList =
+  let
+    file = (rem index board.width)
+    rank = (index // board.width)
+    toFile = file + ability.xOffset
+    toRank = rank + ability.yOffset
+    defendingMan = getMan board toFile toRank
+    legal =
+      (toFile >= 0) && (toFile < board.width) && (toRank >= 0) && (toRank < board.height) && not (sameTeam defendingMan man)
+  in
+    if legal then
+      moveList ++ [Move file rank toFile toRank man Nothing ability Nothing]
+    else
+      moveList
+
+
+generateLegalMovesForPiece : Board -> Maybe Man -> Int -> List Move
+generateLegalMovesForPiece board maybeMan index =
+  case maybeMan of
+    Just maybeMan ->
+      let
+        man = maybeMan
+        moveList = []
+        moveListList = List.map (\ability -> addMoveToList ability board index man moveList) man.abilities
+      in
+        List.concat moveListList
+        --[ Move 0 6 0 5 man Nothing Ability.stepNorth Nothing]
+    _ ->
+      []

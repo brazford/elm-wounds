@@ -14,6 +14,7 @@ import Board exposing (..)
 import Man exposing (..)
 import ManView exposing (..)
 import Player exposing(..)
+import Move exposing(..)
 import Game
 
 
@@ -29,9 +30,9 @@ type alias FileRank =
 type Msg
     = Error
     | WindowSize Window.Size
-    | MouseMove Position
-    | BoardClick Position
---    | CircleClick Position
+    | BoardMouseMove Position
+    | BoardMouseDown Position
+    | BoardMouseUp Position
 
 
 marginScene =
@@ -54,6 +55,7 @@ type alias Model =
     , pieceInHandPosition : FileRank
     , pieceInHand : Maybe Man
     , board : Board
+    , legalMoves : List Move
     }
 
 
@@ -70,6 +72,7 @@ init =
       , pieceInHandPosition = Position 0 0
       , pieceInHand = Nothing
       , board = Game.setUpPowerChess
+      , legalMoves = []
       }
     , Task.perform WindowSize Window.size
     )
@@ -77,7 +80,7 @@ init =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg |> Debug.log "msg" of
+    case msg of -- |> Debug.log "msg"
         WindowSize { width, height } ->
             ( { model | size = Window.Size (width - 2 * marginScene) (height - 100 - 2 * marginScene)
               , squareSize = (model.size.width // model.board.width)
@@ -85,9 +88,9 @@ update msg model =
             , Cmd.none
             )
 
-        MouseMove pos ->
+        BoardMouseMove pos ->
           let
-            one = Debug.log "MouseMove " pos
+            --one = Debug.log "MouseMove " pos
             pieceInHand = model.pieceInHand
           in
             case pieceInHand of
@@ -96,22 +99,44 @@ update msg model =
                 _ ->
                   ( model, Cmd.none )
 
-        BoardClick pos ->
+        BoardMouseDown pos ->
           let
-            one = Debug.log "click: model.pieceInHandPosition " model.pieceInHandPosition
+            one = Debug.log "BoardMouseDown: model.pieceInHandPosition " model.pieceInHandPosition
+            pieceInHand = model.pieceInHand
+            index = Board.squareIndexFromMousePosition model.board model.squareSize pos.x pos.y
+            occupant = Board.getManFromIndex model.board index
+          in
+            if occupant /= Nothing then
+              let
+                legalMoves = Board.generateLegalMovesForPiece model.board occupant index
+              in
+                if List.length legalMoves > 0 then
+                  ( { model | pieceInHand = occupant
+                    , pieceInHandPosition = pos
+                    , board = Board.clearManFromIndex model.board index
+                    , legalMoves = legalMoves
+                    }
+                  , Cmd.none )
+                else
+                  ( model, Cmd.none )
+            else
+              ( model, Cmd.none )
+
+        BoardMouseUp pos ->
+          let
+            one = Debug.log "BoardMouseUp: model.pieceInHandPosition " model.pieceInHandPosition
             pieceInHand = model.pieceInHand
             index = Board.squareIndexFromMousePosition model.board model.squareSize pos.x pos.y
             occupant = Board.getManFromIndex model.board index
           in
             case pieceInHand of
                 Just pieceInHand ->
-                  ( { model | pieceInHand = Nothing, board = Board.putManAtIndex pieceInHand index model.board }, Cmd.none )
+                  ( { model | pieceInHand = Nothing
+                    , board = Board.putManAtIndex pieceInHand index model.board
+                    , legalMoves = []
+                    }, Cmd.none )
                 _ ->
-                  ( { model | pieceInHand = occupant
-                    , pieceInHandPosition = pos
-                    , board = Board.clearManFromIndex model.board index
-                    }
-                  , Cmd.none )
+                  ( model, Cmd.none )
 
         _ ->
             Debug.crash "update"
@@ -135,6 +160,7 @@ scene model =
         , style ("margin:" ++ px marginScene)
         ]
         [ chessBoardView model
+        , legalMovesView model
         , piecesView model
         , clickCatcher model
         ]
@@ -171,6 +197,23 @@ chessBoardView model =
     Svg.g
       []
       (List.map (\index -> drawSquare index (getOddness index)) squaresRange)
+
+legalMovesView : Model -> Svg.Svg Msg
+legalMovesView model =
+  let
+    hiliteSquare move =
+      Svg.rect
+        [ x <| toString <| (move.toFile * model.squareSize)
+        , y <| toString <| (move.toRank * model.squareSize)
+        , width <| toString <| model.squareSize
+        , height <| toString <| model.squareSize
+        , style "stroke:rgb(255,0,0);stroke-width:2;fill-opacity:0.0"
+        ]
+        []
+  in
+    Svg.g
+      []
+      (List.map (\move -> hiliteSquare move) model.legalMoves)
 
 
 
@@ -239,8 +282,9 @@ clickCatcher model =
     , width (toString (model.squareSize * model.board.width))
     , height (toString (model.squareSize * model.board.height))
     , style "fill:purple;fill-opacity:0.0"
-    , VirtualDom.onWithOptions "click" options (Json.map BoardClick offsetPosition)
-    , VirtualDom.onWithOptions "mousemove" options (Json.map MouseMove offsetPosition)
+    , VirtualDom.onWithOptions "mousedown" options (Json.map BoardMouseDown offsetPosition)
+    , VirtualDom.onWithOptions "mouseup" options (Json.map BoardMouseUp offsetPosition)
+    , VirtualDom.onWithOptions "mousemove" options (Json.map BoardMouseMove offsetPosition)
     ]
     []
 
