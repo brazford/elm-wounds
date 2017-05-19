@@ -53,20 +53,35 @@ var _user$project$Board$getMan = F3(
 	});
 var _user$project$Board$addMoveToList = F5(
 	function (ability, board, index, man, moveList) {
+		var isLegal = F5(
+			function (board, toFile, toRank, man, defendingMan) {
+				return (_elm_lang$core$Native_Utils.cmp(toFile, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toFile, board.width) < 0) && ((_elm_lang$core$Native_Utils.cmp(toRank, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toRank, board.height) < 0) && (!A2(_user$project$Board$sameTeam, defendingMan, man)))));
+			});
 		var rank = (index / board.width) | 0;
 		var toRank = rank + ability.yOffset;
 		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
 		var toFile = file + ability.xOffset;
 		var defendingMan = A3(_user$project$Board$getMan, board, toFile, toRank);
-		var legal = (_elm_lang$core$Native_Utils.cmp(toFile, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toFile, board.width) < 0) && ((_elm_lang$core$Native_Utils.cmp(toRank, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toRank, board.height) < 0) && (!A2(_user$project$Board$sameTeam, defendingMan, man)))));
-		return legal ? A2(
+		var nextIndex = (toRank * board.width) + toFile;
+		var showRank = A2(_elm_lang$core$Debug$log, 'rank ', rank);
+		return A5(isLegal, board, toFile, toRank, man, defendingMan) ? ((_elm_lang$core$Native_Utils.eq(ability.abilityType, _user$project$Ability$Slide) && _elm_lang$core$Native_Utils.eq(defendingMan, _elm_lang$core$Maybe$Nothing)) ? A2(
+			_elm_lang$core$Basics_ops['++'],
+			moveList,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, _elm_lang$core$Maybe$Nothing),
+					_1: {ctor: '[]'}
+				},
+				A5(_user$project$Board$addMoveToList, ability, board, nextIndex, man, moveList))) : A2(
 			_elm_lang$core$Basics_ops['++'],
 			moveList,
 			{
 				ctor: '::',
-				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, _elm_lang$core$Maybe$Nothing, ability, _elm_lang$core$Maybe$Nothing),
+				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, _elm_lang$core$Maybe$Nothing),
 				_1: {ctor: '[]'}
-			}) : moveList;
+			})) : moveList;
 	});
 var _user$project$Board$generateLegalMovesForPiece = F3(
 	function (board, maybeMan, index) {

@@ -148,7 +148,7 @@ view model =
         [ scene model
         , Html.div
             []
-            [ Html.text (toString model) ]
+            [ Html.text (toString model.legalMoves) ]
         ]
 
 
