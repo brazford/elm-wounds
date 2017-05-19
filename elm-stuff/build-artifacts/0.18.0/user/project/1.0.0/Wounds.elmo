@@ -235,6 +235,7 @@ var _user$project$Wounds$update = F2(
 							{
 								pieceInHand: occupant,
 								pieceInHandPosition: _p10,
+								fromIndex: index,
 								board: A2(_user$project$Board$clearManFromIndex, model.board, index),
 								legalMoves: legalMoves
 							}),
@@ -244,20 +245,45 @@ var _user$project$Wounds$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'BoardMouseUp':
-				var _p12 = _p8._0;
-				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p12.x, _p12.y);
+				var _p13 = _p8._0;
+				var legalDestination = F2(
+					function (move, index) {
+						return _elm_lang$core$Native_Utils.eq(
+							{ctor: '_Tuple2', _0: move.toFile, _1: move.toRank},
+							A2(_user$project$Board$squareFileAndRankFromIndex, model.board, index));
+					});
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p13.x, _p13.y);
 				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
+				var moves = A2(
+					_elm_lang$core$List$filter,
+					function (move) {
+						return A2(legalDestination, move, index);
+					},
+					model.legalMoves);
 				var pieceInHand = model.pieceInHand;
 				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseUp: model.pieceInHandPosition ', model.pieceInHandPosition);
 				var _p11 = pieceInHand;
 				if (_p11.ctor === 'Just') {
-					return {
+					var _p12 = _p11._0;
+					return (_elm_lang$core$Native_Utils.cmp(
+						_elm_lang$core$List$length(moves),
+						0) > 0) ? {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
 								pieceInHand: _elm_lang$core$Maybe$Nothing,
-								board: A3(_user$project$Board$putManAtIndex, _p11._0, index, model.board),
+								board: A3(_user$project$Board$putManAtIndex, _p12, index, model.board),
+								legalMoves: {ctor: '[]'}
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					} : {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								pieceInHand: _elm_lang$core$Maybe$Nothing,
+								board: A3(_user$project$Board$putManAtIndex, _p12, model.fromIndex, model.board),
 								legalMoves: {ctor: '[]'}
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
@@ -269,8 +295,8 @@ var _user$project$Wounds$update = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 83, column: 5},
-						end: {line: 142, column: 33}
+						start: {line: 85, column: 5},
+						end: {line: 154, column: 33}
 					},
 					_p8)('update');
 		}
@@ -288,9 +314,9 @@ var _user$project$Wounds$FileRank = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
-var _user$project$Wounds$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, board: f, legalMoves: g};
+var _user$project$Wounds$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, fromIndex: f, board: g, legalMoves: h};
 	});
 var _user$project$Wounds$BoardMouseUp = function (a) {
 	return {ctor: 'BoardMouseUp', _0: a};
@@ -433,6 +459,7 @@ var _user$project$Wounds$init = function () {
 			mousePosition: A2(_user$project$Wounds$Position, 0, 0),
 			pieceInHandPosition: A2(_user$project$Wounds$Position, 0, 0),
 			pieceInHand: _elm_lang$core$Maybe$Nothing,
+			fromIndex: 0,
 			board: _user$project$Game$setUpPowerChess,
 			legalMoves: {ctor: '[]'}
 		},

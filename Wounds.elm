@@ -54,6 +54,7 @@ type alias Model =
     , mousePosition : Position
     , pieceInHandPosition : FileRank
     , pieceInHand : Maybe Man
+    , fromIndex : Int
     , board : Board
     , legalMoves : List Move
     }
@@ -71,6 +72,7 @@ init =
       , mousePosition = Position 0 0
       , pieceInHandPosition = Position 0 0
       , pieceInHand = Nothing
+      , fromIndex = 0
       , board = Game.setUpPowerChess
       , legalMoves = []
       }
@@ -113,6 +115,7 @@ update msg model =
                 if List.length legalMoves > 0 then
                   ( { model | pieceInHand = occupant
                     , pieceInHandPosition = pos
+                    , fromIndex = index
                     , board = Board.clearManFromIndex model.board index
                     , legalMoves = legalMoves
                     }
@@ -128,13 +131,22 @@ update msg model =
             pieceInHand = model.pieceInHand
             index = Board.squareIndexFromMousePosition model.board model.squareSize pos.x pos.y
             occupant = Board.getManFromIndex model.board index
+            legalDestination move index =
+              ( move.toFile, move.toRank ) == (squareFileAndRankFromIndex model.board index)
+            moves = List.filter (\move -> legalDestination move index) model.legalMoves
           in
             case pieceInHand of
                 Just pieceInHand ->
-                  ( { model | pieceInHand = Nothing
-                    , board = Board.putManAtIndex pieceInHand index model.board
-                    , legalMoves = []
-                    }, Cmd.none )
+                  if List.length moves > 0 then
+                    ( { model | pieceInHand = Nothing
+                      , board = Board.putManAtIndex pieceInHand index model.board
+                      , legalMoves = []
+                      }, Cmd.none )
+                  else
+                    ( { model | pieceInHand = Nothing
+                      , board = Board.putManAtIndex pieceInHand model.fromIndex model.board
+                      , legalMoves = []
+                      }, Cmd.none )
                 _ ->
                   ( model, Cmd.none )
 

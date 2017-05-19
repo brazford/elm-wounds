@@ -27,6 +27,11 @@ squareIndex board file rank =
   (rank * board.width) + file
 
 
+squareFileAndRankFromIndex : Board -> Int -> ( Int, Int )
+squareFileAndRankFromIndex board index =
+  ((rem index board.width), (index // board.width))
+
+
 getSquare : Board -> Int -> Int -> Square
 getSquare board file rank =
   let
@@ -89,23 +94,6 @@ sameTeam maybeMan man =
     _ ->
       False
 
-{--
-addMoveToList : Ability -> Board -> Int -> Man -> List Move -> List Move
-addMoveToList ability board index man moveList =
-  let
-    file = (rem index board.width)
-    rank = (index // board.width)
-    toFile = file + ability.xOffset
-    toRank = rank + ability.yOffset
-    defendingMan = getMan board toFile toRank
-    legal =
-      (toFile >= 0) && (toFile < board.width) && (toRank >= 0) && (toRank < board.height) && not (sameTeam defendingMan man)
-  in
-    if legal then
-      moveList ++ [Move file rank toFile toRank man Nothing ability Nothing]
-    else
-      moveList
---}
 
 addMoveToList : Ability -> Board -> Int -> Man -> List Move -> List Move
 addMoveToList ability board index man moveList =
@@ -117,10 +105,10 @@ addMoveToList ability board index man moveList =
     toRank = rank + ability.yOffset
     defendingMan = getMan board toFile toRank
     nextIndex = (toRank * board.width) + toFile
-    isLegal board toFile toRank man defendingMan =
+    isLegalMove board toFile toRank man defendingMan =
       (toFile >= 0) && (toFile < board.width) && (toRank >= 0) && (toRank < board.height) && not (sameTeam defendingMan man)
   in
-    if isLegal board toFile toRank man defendingMan then
+    if isLegalMove board toFile toRank man defendingMan then
       if (ability.abilityType == Slide) && (defendingMan == Nothing) then
         moveList ++ [Move file rank toFile toRank man defendingMan ability Nothing] ++ addMoveToList ability board nextIndex man moveList
       else
