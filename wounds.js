@@ -9076,7 +9076,7 @@ var _user$project$Ability$AbilityDemoted = {ctor: 'AbilityDemoted'};
 var _user$project$Ability$AbilityRemoved = {ctor: 'AbilityRemoved'};
 var _user$project$Ability$getDefenseResult = F2(
 	function (attacker, defender) {
-		var defenseStrength = (_elm_lang$core$Native_Utils.eq(defender.abilityType, _user$project$Ability$Slide) && (!defender.demoted)) ? 2 : 1;
+		var defenseStrength = ((_elm_lang$core$Native_Utils.eq(defender.abilityType, _user$project$Ability$Slide) || _elm_lang$core$Native_Utils.eq(defender.abilityType, _user$project$Ability$Fat)) && (!defender.demoted)) ? 2 : 1;
 		var attackStrength = (_elm_lang$core$Native_Utils.eq(attacker.abilityType, _user$project$Ability$Slide) && (!attacker.demoted)) ? 2 : 1;
 		var _p0 = attackStrength - defenseStrength;
 		switch (_p0) {

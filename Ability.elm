@@ -22,7 +22,7 @@ getDefenseResult : Ability -> Ability -> DefenseResult
 getDefenseResult attacker defender =
   let
     attackStrength = if attacker.abilityType == Slide && not attacker.demoted then 2 else 1
-    defenseStrength = if defender.abilityType == Slide && not defender.demoted then 2 else 1
+    defenseStrength = if (defender.abilityType == Slide || defender.abilityType == Fat) && not defender.demoted then 2 else 1
   in
     case attackStrength - defenseStrength of
       -1 ->
