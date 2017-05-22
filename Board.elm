@@ -104,15 +104,16 @@ addMoveToList ability board index man moveList =
     toFile = file + ability.xOffset
     toRank = rank + ability.yOffset
     defendingMan = getMan board toFile toRank
+    defendingAbility = Man.getDefendingAbility defendingMan ability
     nextIndex = (toRank * board.width) + toFile
     isLegalMove board toFile toRank man defendingMan =
       (toFile >= 0) && (toFile < board.width) && (toRank >= 0) && (toRank < board.height) && not (sameTeam defendingMan man)
   in
     if isLegalMove board toFile toRank man defendingMan then
       if (ability.abilityType == Slide) && (defendingMan == Nothing) then
-        moveList ++ [Move file rank toFile toRank man defendingMan ability Nothing] ++ addMoveToList ability board nextIndex man moveList
+        moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility] ++ addMoveToList ability board nextIndex man moveList
       else
-        moveList ++ [Move file rank toFile toRank man defendingMan ability Nothing]
+        moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility]
     else
       moveList
 

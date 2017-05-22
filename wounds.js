@@ -9095,7 +9095,39 @@ var _user$project$AbilityView$drawSlide = F5(
 		var shortLength = (squareSize / 5) | 0;
 		var thick = (squareSize / 10) | 0;
 		var thin = (squareSize / 20) | 0;
-		return A2(
+		var drawConditionally = ability.demoted ? A2(
+			_elm_lang$svg$Svg$line,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$stroke(color),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$strokeWidth(
+						_elm_lang$core$Basics$toString(thin)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$x1(
+							_elm_lang$core$Basics$toString(x)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$x2(
+								_elm_lang$core$Basics$toString(x + (shortLength * ability.xOffset))),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$y1(
+									_elm_lang$core$Basics$toString(y)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$y2(
+										_elm_lang$core$Basics$toString(y + (shortLength * ability.yOffset))),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			},
+			{ctor: '[]'}) : A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
 			{
@@ -9171,11 +9203,12 @@ var _user$project$AbilityView$drawSlide = F5(
 					_1: {ctor: '[]'}
 				}
 			});
+		return drawConditionally;
 	});
 var _user$project$AbilityView$drawFat = F5(
 	function (x, y, squareSize, color, ability) {
 		var shortLength = (squareSize / 5) | 0;
-		var thick = (squareSize / 10) | 0;
+		var getStrokeThickness = ability.demoted ? ((squareSize / 20) | 0) : ((squareSize / 10) | 0);
 		return A2(
 			_elm_lang$svg$Svg$line,
 			{
@@ -9184,7 +9217,7 @@ var _user$project$AbilityView$drawFat = F5(
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$strokeWidth(
-						_elm_lang$core$Basics$toString(thick)),
+						_elm_lang$core$Basics$toString(getStrokeThickness)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$x1(
@@ -9624,6 +9657,73 @@ var _user$project$Man$star = function (player) {
 		}
 	};
 };
+var _user$project$Man$removeAbility = F2(
+	function (man, abilityToRemove) {
+		var nonMatchingAbilities = function (candidate) {
+			return (!_elm_lang$core$Native_Utils.eq(abilityToRemove.xOffset, candidate.xOffset)) || (!_elm_lang$core$Native_Utils.eq(abilityToRemove.yOffset, candidate.yOffset));
+		};
+		return _elm_lang$core$Native_Utils.update(
+			man,
+			{
+				abilities: A2(
+					_elm_lang$core$List$filter,
+					function (ability) {
+						return nonMatchingAbilities(ability);
+					},
+					man.abilities)
+			});
+	});
+var _user$project$Man$demoteAbility = F2(
+	function (man, abilityToDemote) {
+		var demoteMatchingAbilities = function (candidateAbility) {
+			return (_elm_lang$core$Native_Utils.eq(candidateAbility.xOffset, abilityToDemote.xOffset) && _elm_lang$core$Native_Utils.eq(candidateAbility.yOffset, abilityToDemote.yOffset)) ? _elm_lang$core$Native_Utils.update(
+				candidateAbility,
+				{demoted: true}) : candidateAbility;
+		};
+		return _elm_lang$core$Native_Utils.update(
+			man,
+			{
+				abilities: A2(
+					_elm_lang$core$List$map,
+					function (candidateAbility) {
+						return demoteMatchingAbilities(candidateAbility);
+					},
+					man.abilities)
+			});
+	});
+var _user$project$Man$getDefendingAbility = F2(
+	function (defender, attackingAbility) {
+		var abilityMatcher = function (defendingAbility) {
+			return _elm_lang$core$Native_Utils.eq(defendingAbility.xOffset, 0 - attackingAbility.xOffset) && _elm_lang$core$Native_Utils.eq(defendingAbility.yOffset, 0 - attackingAbility.yOffset);
+		};
+		var _p0 = defender;
+		if (_p0.ctor === 'Just') {
+			return _elm_lang$core$List$head(
+				A2(
+					_elm_lang$core$List$filter,
+					function (ability) {
+						return abilityMatcher(ability);
+					},
+					_p0._0.abilities));
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _user$project$Man$hasDefendingAbility = F2(
+	function (defender, attackingAbility) {
+		var abilityMatcher = function (defendingAbility) {
+			return _elm_lang$core$Native_Utils.eq(defendingAbility.xOffset, 0 - attackingAbility.xOffset) && _elm_lang$core$Native_Utils.eq(defendingAbility.yOffset, 0 - attackingAbility.yOffset);
+		};
+		var matches = A2(
+			_elm_lang$core$List$filter,
+			function (ability) {
+				return abilityMatcher(ability);
+			},
+			defender.abilities);
+		return _elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$List$length(matches),
+			0) > 0;
+	});
 var _user$project$Man$Man = F3(
 	function (a, b, c) {
 		return {abilities: a, name: b, player: c};
@@ -9715,6 +9815,7 @@ var _user$project$Board$addMoveToList = F5(
 		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
 		var toFile = file + ability.xOffset;
 		var defendingMan = A3(_user$project$Board$getMan, board, toFile, toRank);
+		var defendingAbility = A2(_user$project$Man$getDefendingAbility, defendingMan, ability);
 		var nextIndex = (toRank * board.width) + toFile;
 		var showRank = A2(_elm_lang$core$Debug$log, 'rank ', rank);
 		return A5(isLegalMove, board, toFile, toRank, man, defendingMan) ? ((_elm_lang$core$Native_Utils.eq(ability.abilityType, _user$project$Ability$Slide) && _elm_lang$core$Native_Utils.eq(defendingMan, _elm_lang$core$Maybe$Nothing)) ? A2(
@@ -9724,7 +9825,7 @@ var _user$project$Board$addMoveToList = F5(
 				_elm_lang$core$Basics_ops['++'],
 				{
 					ctor: '::',
-					_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, _elm_lang$core$Maybe$Nothing),
+					_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, defendingAbility),
 					_1: {ctor: '[]'}
 				},
 				A5(_user$project$Board$addMoveToList, ability, board, nextIndex, man, moveList))) : A2(
@@ -9732,7 +9833,7 @@ var _user$project$Board$addMoveToList = F5(
 			moveList,
 			{
 				ctor: '::',
-				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, _elm_lang$core$Maybe$Nothing),
+				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, defendingAbility),
 				_1: {ctor: '[]'}
 			})) : moveList;
 	});
@@ -10270,49 +10371,173 @@ var _user$project$Wounds$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'BoardMouseUp':
-				var _p13 = _p8._0;
+				var _p24 = _p8._0;
+				var getDefenseResult = function (thisMaybeMove) {
+					var _p11 = thisMaybeMove;
+					if (_p11.ctor === 'Just') {
+						var _p13 = _p11._0;
+						var defendingAbility = _p13.defendingAbility;
+						var _p12 = _p13.defendingAbility;
+						if (_p12.ctor === 'Just') {
+							return A2(_user$project$Ability$getDefenseResult, _p13.attackingAbility, _p12._0);
+						} else {
+							return _user$project$Ability$PieceCaptured;
+						}
+					} else {
+						return _user$project$Ability$PieceCaptured;
+					}
+				};
 				var legalDestination = F2(
 					function (move, index) {
 						return _elm_lang$core$Native_Utils.eq(
 							{ctor: '_Tuple2', _0: move.toFile, _1: move.toRank},
 							A2(_user$project$Board$squareFileAndRankFromIndex, model.board, index));
 					});
-				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p13.x, _p13.y);
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p24.x, _p24.y);
 				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
-				var moves = A2(
+				var possibleMoves = A2(
 					_elm_lang$core$List$filter,
 					function (move) {
 						return A2(legalDestination, move, index);
 					},
 					model.legalMoves);
+				var thisMaybeMove = _elm_lang$core$List$head(possibleMoves);
+				var defended = function (defender) {
+					var _p14 = thisMaybeMove;
+					if (_p14.ctor === 'Just') {
+						return A2(_user$project$Man$hasDefendingAbility, defender, _p14._0.attackingAbility);
+					} else {
+						return false;
+					}
+				};
+				var demoteAbility = function (man) {
+					var _p15 = thisMaybeMove;
+					if (_p15.ctor === 'Just') {
+						var defendingAbility = _p15._0.defendingAbility;
+						var _p16 = defendingAbility;
+						if (_p16.ctor === 'Just') {
+							return A2(_user$project$Man$demoteAbility, man, _p16._0);
+						} else {
+							return man;
+						}
+					} else {
+						return man;
+					}
+				};
+				var removeAbility = function (man) {
+					var _p17 = thisMaybeMove;
+					if (_p17.ctor === 'Just') {
+						var defendingAbility = _p17._0.defendingAbility;
+						var _p18 = defendingAbility;
+						if (_p18.ctor === 'Just') {
+							return A2(_user$project$Man$removeAbility, man, _p18._0);
+						} else {
+							return man;
+						}
+					} else {
+						return man;
+					}
+				};
 				var pieceInHand = model.pieceInHand;
-				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseUp: model.pieceInHandPosition ', model.pieceInHandPosition);
-				var _p11 = pieceInHand;
-				if (_p11.ctor === 'Just') {
-					var _p12 = _p11._0;
-					return (_elm_lang$core$Native_Utils.cmp(
-						_elm_lang$core$List$length(moves),
-						0) > 0) ? {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								pieceInHand: _elm_lang$core$Maybe$Nothing,
-								board: A3(_user$project$Board$putManAtIndex, _p12, index, model.board),
-								legalMoves: {ctor: '[]'}
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					} : {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								pieceInHand: _elm_lang$core$Maybe$Nothing,
-								board: A3(_user$project$Board$putManAtIndex, _p12, model.fromIndex, model.board),
-								legalMoves: {ctor: '[]'}
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+				var _p19 = pieceInHand;
+				if (_p19.ctor === 'Just') {
+					var _p23 = _p19._0;
+					if (_elm_lang$core$Native_Utils.cmp(
+						_elm_lang$core$List$length(possibleMoves),
+						0) > 0) {
+						var _p20 = occupant;
+						if (_p20.ctor === 'Just') {
+							var _p22 = _p20._0;
+							if (defended(_p22)) {
+								var _p21 = A2(
+									_elm_lang$core$Debug$log,
+									'getDefenseResult',
+									getDefenseResult(thisMaybeMove));
+								switch (_p21.ctor) {
+									case 'AbilityDemoted':
+										return {
+											ctor: '_Tuple2',
+											_0: _elm_lang$core$Native_Utils.update(
+												model,
+												{
+													pieceInHand: _elm_lang$core$Maybe$Nothing,
+													board: A3(
+														_user$project$Board$putManAtIndex,
+														demoteAbility(_p22),
+														index,
+														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													legalMoves: {ctor: '[]'}
+												}),
+											_1: _elm_lang$core$Platform_Cmd$none
+										};
+									case 'AbilityRemoved':
+										return {
+											ctor: '_Tuple2',
+											_0: _elm_lang$core$Native_Utils.update(
+												model,
+												{
+													pieceInHand: _elm_lang$core$Maybe$Nothing,
+													board: A3(
+														_user$project$Board$putManAtIndex,
+														removeAbility(_p22),
+														index,
+														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													legalMoves: {ctor: '[]'}
+												}),
+											_1: _elm_lang$core$Platform_Cmd$none
+										};
+									default:
+										return {
+											ctor: '_Tuple2',
+											_0: _elm_lang$core$Native_Utils.update(
+												model,
+												{
+													pieceInHand: _elm_lang$core$Maybe$Nothing,
+													board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+													legalMoves: {ctor: '[]'}
+												}),
+											_1: _elm_lang$core$Platform_Cmd$none
+										};
+								}
+							} else {
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{
+											pieceInHand: _elm_lang$core$Maybe$Nothing,
+											board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+											legalMoves: {ctor: '[]'}
+										}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							}
+						} else {
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{
+										pieceInHand: _elm_lang$core$Maybe$Nothing,
+										board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+										legalMoves: {ctor: '[]'}
+									}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						}
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									pieceInHand: _elm_lang$core$Maybe$Nothing,
+									board: A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board),
+									legalMoves: {ctor: '[]'}
+								}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					}
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
@@ -10320,8 +10545,8 @@ var _user$project$Wounds$update = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 85, column: 5},
-						end: {line: 154, column: 33}
+						start: {line: 86, column: 5},
+						end: {line: 233, column: 33}
 					},
 					_p8)('update');
 		}

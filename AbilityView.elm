@@ -38,17 +38,24 @@ drawJump x y squareSize color ability =
 drawFat : Int -> Int -> Int -> String -> Ability -> Svg.Svg msg
 drawFat x y squareSize color ability =
   let
-    thick = squareSize // 10
+    getStrokeThickness =
+      if ability.demoted then
+        squareSize // 20
+      else
+        squareSize // 10
+
     shortLength = squareSize // 5
   in
     Svg.line
       [ stroke color
-      , strokeWidth (toString thick)
+      , strokeWidth (toString getStrokeThickness)
       , x1 (toString x)
       , x2 (toString (x + (shortLength * ability.xOffset)))
       , y1 (toString y)
       , y2 (toString (y + (shortLength * ability.yOffset)))
       ] []
+
+
 
 drawSlide : Int -> Int -> Int -> String -> Ability -> Svg.Svg msg
 drawSlide x y squareSize color ability =
@@ -57,26 +64,41 @@ drawSlide x y squareSize color ability =
     thick = squareSize // 10
     shortLength = squareSize // 5
     longLength = squareSize // 3
+    drawConditionally =
+      if ability.demoted then
+        Svg.line
+          [ stroke color
+          , strokeWidth (toString thin)
+          , x1 (toString x)
+          , x2 (toString (x + (shortLength * ability.xOffset)))
+          , y1 (toString y)
+          , y2 (toString (y + (shortLength * ability.yOffset)))
+          ] []
+      else
+        Svg.g
+        []
+        [ Svg.line
+            [ stroke color
+            , strokeWidth (toString thick)
+            , x1 (toString x)
+            , x2 (toString (x + (shortLength * ability.xOffset)))
+            , y1 (toString y)
+            , y2 (toString (y + (shortLength * ability.yOffset)))
+            ] []
+
+
+          , Svg.line
+            [ stroke color
+            , strokeWidth (toString thin)
+            , x1 (toString x)
+            , x2 (toString (x + (longLength * ability.xOffset)))
+            , y1 (toString y)
+            , y2 (toString (y + (longLength * ability.yOffset)))
+            ] []
+        ]
+
   in
-    Svg.g
-    []
-    [ Svg.line
-        [ stroke color
-        , strokeWidth (toString thick)
-        , x1 (toString x)
-        , x2 (toString (x + (shortLength * ability.xOffset)))
-        , y1 (toString y)
-        , y2 (toString (y + (shortLength * ability.yOffset)))
-        ] []
-    , Svg.line
-        [ stroke color
-        , strokeWidth (toString thin)
-        , x1 (toString x)
-        , x2 (toString (x + (longLength * ability.xOffset)))
-        , y1 (toString y)
-        , y2 (toString (y + (longLength * ability.yOffset)))
-        ] []
-    ]
+    drawConditionally
 
 drawAbility : Int -> Int -> Int -> String -> Ability -> Svg.Svg msg
 drawAbility x y squareSize color ability =

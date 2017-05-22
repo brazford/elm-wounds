@@ -245,49 +245,173 @@ var _user$project$Wounds$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'BoardMouseUp':
-				var _p13 = _p8._0;
+				var _p24 = _p8._0;
+				var getDefenseResult = function (thisMaybeMove) {
+					var _p11 = thisMaybeMove;
+					if (_p11.ctor === 'Just') {
+						var _p13 = _p11._0;
+						var defendingAbility = _p13.defendingAbility;
+						var _p12 = _p13.defendingAbility;
+						if (_p12.ctor === 'Just') {
+							return A2(_user$project$Ability$getDefenseResult, _p13.attackingAbility, _p12._0);
+						} else {
+							return _user$project$Ability$PieceCaptured;
+						}
+					} else {
+						return _user$project$Ability$PieceCaptured;
+					}
+				};
 				var legalDestination = F2(
 					function (move, index) {
 						return _elm_lang$core$Native_Utils.eq(
 							{ctor: '_Tuple2', _0: move.toFile, _1: move.toRank},
 							A2(_user$project$Board$squareFileAndRankFromIndex, model.board, index));
 					});
-				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p13.x, _p13.y);
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p24.x, _p24.y);
 				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
-				var moves = A2(
+				var possibleMoves = A2(
 					_elm_lang$core$List$filter,
 					function (move) {
 						return A2(legalDestination, move, index);
 					},
 					model.legalMoves);
+				var thisMaybeMove = _elm_lang$core$List$head(possibleMoves);
+				var defended = function (defender) {
+					var _p14 = thisMaybeMove;
+					if (_p14.ctor === 'Just') {
+						return A2(_user$project$Man$hasDefendingAbility, defender, _p14._0.attackingAbility);
+					} else {
+						return false;
+					}
+				};
+				var demoteAbility = function (man) {
+					var _p15 = thisMaybeMove;
+					if (_p15.ctor === 'Just') {
+						var defendingAbility = _p15._0.defendingAbility;
+						var _p16 = defendingAbility;
+						if (_p16.ctor === 'Just') {
+							return A2(_user$project$Man$demoteAbility, man, _p16._0);
+						} else {
+							return man;
+						}
+					} else {
+						return man;
+					}
+				};
+				var removeAbility = function (man) {
+					var _p17 = thisMaybeMove;
+					if (_p17.ctor === 'Just') {
+						var defendingAbility = _p17._0.defendingAbility;
+						var _p18 = defendingAbility;
+						if (_p18.ctor === 'Just') {
+							return A2(_user$project$Man$removeAbility, man, _p18._0);
+						} else {
+							return man;
+						}
+					} else {
+						return man;
+					}
+				};
 				var pieceInHand = model.pieceInHand;
-				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseUp: model.pieceInHandPosition ', model.pieceInHandPosition);
-				var _p11 = pieceInHand;
-				if (_p11.ctor === 'Just') {
-					var _p12 = _p11._0;
-					return (_elm_lang$core$Native_Utils.cmp(
-						_elm_lang$core$List$length(moves),
-						0) > 0) ? {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								pieceInHand: _elm_lang$core$Maybe$Nothing,
-								board: A3(_user$project$Board$putManAtIndex, _p12, index, model.board),
-								legalMoves: {ctor: '[]'}
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					} : {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								pieceInHand: _elm_lang$core$Maybe$Nothing,
-								board: A3(_user$project$Board$putManAtIndex, _p12, model.fromIndex, model.board),
-								legalMoves: {ctor: '[]'}
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+				var _p19 = pieceInHand;
+				if (_p19.ctor === 'Just') {
+					var _p23 = _p19._0;
+					if (_elm_lang$core$Native_Utils.cmp(
+						_elm_lang$core$List$length(possibleMoves),
+						0) > 0) {
+						var _p20 = occupant;
+						if (_p20.ctor === 'Just') {
+							var _p22 = _p20._0;
+							if (defended(_p22)) {
+								var _p21 = A2(
+									_elm_lang$core$Debug$log,
+									'getDefenseResult',
+									getDefenseResult(thisMaybeMove));
+								switch (_p21.ctor) {
+									case 'AbilityDemoted':
+										return {
+											ctor: '_Tuple2',
+											_0: _elm_lang$core$Native_Utils.update(
+												model,
+												{
+													pieceInHand: _elm_lang$core$Maybe$Nothing,
+													board: A3(
+														_user$project$Board$putManAtIndex,
+														demoteAbility(_p22),
+														index,
+														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													legalMoves: {ctor: '[]'}
+												}),
+											_1: _elm_lang$core$Platform_Cmd$none
+										};
+									case 'AbilityRemoved':
+										return {
+											ctor: '_Tuple2',
+											_0: _elm_lang$core$Native_Utils.update(
+												model,
+												{
+													pieceInHand: _elm_lang$core$Maybe$Nothing,
+													board: A3(
+														_user$project$Board$putManAtIndex,
+														removeAbility(_p22),
+														index,
+														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													legalMoves: {ctor: '[]'}
+												}),
+											_1: _elm_lang$core$Platform_Cmd$none
+										};
+									default:
+										return {
+											ctor: '_Tuple2',
+											_0: _elm_lang$core$Native_Utils.update(
+												model,
+												{
+													pieceInHand: _elm_lang$core$Maybe$Nothing,
+													board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+													legalMoves: {ctor: '[]'}
+												}),
+											_1: _elm_lang$core$Platform_Cmd$none
+										};
+								}
+							} else {
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{
+											pieceInHand: _elm_lang$core$Maybe$Nothing,
+											board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+											legalMoves: {ctor: '[]'}
+										}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							}
+						} else {
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{
+										pieceInHand: _elm_lang$core$Maybe$Nothing,
+										board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+										legalMoves: {ctor: '[]'}
+									}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						}
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									pieceInHand: _elm_lang$core$Maybe$Nothing,
+									board: A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board),
+									legalMoves: {ctor: '[]'}
+								}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					}
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
@@ -295,8 +419,8 @@ var _user$project$Wounds$update = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 85, column: 5},
-						end: {line: 154, column: 33}
+						start: {line: 86, column: 5},
+						end: {line: 233, column: 33}
 					},
 					_p8)('update');
 		}

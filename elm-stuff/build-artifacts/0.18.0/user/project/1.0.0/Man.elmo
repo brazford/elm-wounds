@@ -310,6 +310,73 @@ var _user$project$Man$star = function (player) {
 		}
 	};
 };
+var _user$project$Man$removeAbility = F2(
+	function (man, abilityToRemove) {
+		var nonMatchingAbilities = function (candidate) {
+			return (!_elm_lang$core$Native_Utils.eq(abilityToRemove.xOffset, candidate.xOffset)) || (!_elm_lang$core$Native_Utils.eq(abilityToRemove.yOffset, candidate.yOffset));
+		};
+		return _elm_lang$core$Native_Utils.update(
+			man,
+			{
+				abilities: A2(
+					_elm_lang$core$List$filter,
+					function (ability) {
+						return nonMatchingAbilities(ability);
+					},
+					man.abilities)
+			});
+	});
+var _user$project$Man$demoteAbility = F2(
+	function (man, abilityToDemote) {
+		var demoteMatchingAbilities = function (candidateAbility) {
+			return (_elm_lang$core$Native_Utils.eq(candidateAbility.xOffset, abilityToDemote.xOffset) && _elm_lang$core$Native_Utils.eq(candidateAbility.yOffset, abilityToDemote.yOffset)) ? _elm_lang$core$Native_Utils.update(
+				candidateAbility,
+				{demoted: true}) : candidateAbility;
+		};
+		return _elm_lang$core$Native_Utils.update(
+			man,
+			{
+				abilities: A2(
+					_elm_lang$core$List$map,
+					function (candidateAbility) {
+						return demoteMatchingAbilities(candidateAbility);
+					},
+					man.abilities)
+			});
+	});
+var _user$project$Man$getDefendingAbility = F2(
+	function (defender, attackingAbility) {
+		var abilityMatcher = function (defendingAbility) {
+			return _elm_lang$core$Native_Utils.eq(defendingAbility.xOffset, 0 - attackingAbility.xOffset) && _elm_lang$core$Native_Utils.eq(defendingAbility.yOffset, 0 - attackingAbility.yOffset);
+		};
+		var _p0 = defender;
+		if (_p0.ctor === 'Just') {
+			return _elm_lang$core$List$head(
+				A2(
+					_elm_lang$core$List$filter,
+					function (ability) {
+						return abilityMatcher(ability);
+					},
+					_p0._0.abilities));
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _user$project$Man$hasDefendingAbility = F2(
+	function (defender, attackingAbility) {
+		var abilityMatcher = function (defendingAbility) {
+			return _elm_lang$core$Native_Utils.eq(defendingAbility.xOffset, 0 - attackingAbility.xOffset) && _elm_lang$core$Native_Utils.eq(defendingAbility.yOffset, 0 - attackingAbility.yOffset);
+		};
+		var matches = A2(
+			_elm_lang$core$List$filter,
+			function (ability) {
+				return abilityMatcher(ability);
+			},
+			defender.abilities);
+		return _elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$List$length(matches),
+			0) > 0;
+	});
 var _user$project$Man$Man = F3(
 	function (a, b, c) {
 		return {abilities: a, name: b, player: c};

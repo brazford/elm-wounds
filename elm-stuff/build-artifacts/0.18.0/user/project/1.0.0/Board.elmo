@@ -70,6 +70,7 @@ var _user$project$Board$addMoveToList = F5(
 		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
 		var toFile = file + ability.xOffset;
 		var defendingMan = A3(_user$project$Board$getMan, board, toFile, toRank);
+		var defendingAbility = A2(_user$project$Man$getDefendingAbility, defendingMan, ability);
 		var nextIndex = (toRank * board.width) + toFile;
 		var showRank = A2(_elm_lang$core$Debug$log, 'rank ', rank);
 		return A5(isLegalMove, board, toFile, toRank, man, defendingMan) ? ((_elm_lang$core$Native_Utils.eq(ability.abilityType, _user$project$Ability$Slide) && _elm_lang$core$Native_Utils.eq(defendingMan, _elm_lang$core$Maybe$Nothing)) ? A2(
@@ -79,7 +80,7 @@ var _user$project$Board$addMoveToList = F5(
 				_elm_lang$core$Basics_ops['++'],
 				{
 					ctor: '::',
-					_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, _elm_lang$core$Maybe$Nothing),
+					_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, defendingAbility),
 					_1: {ctor: '[]'}
 				},
 				A5(_user$project$Board$addMoveToList, ability, board, nextIndex, man, moveList))) : A2(
@@ -87,7 +88,7 @@ var _user$project$Board$addMoveToList = F5(
 			moveList,
 			{
 				ctor: '::',
-				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, _elm_lang$core$Maybe$Nothing),
+				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, defendingAbility),
 				_1: {ctor: '[]'}
 			})) : moveList;
 	});

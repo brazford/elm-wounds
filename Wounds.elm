@@ -15,6 +15,7 @@ import Man exposing (..)
 import ManView exposing (..)
 import Player exposing(..)
 import Move exposing(..)
+import Ability
 import Game
 
 
@@ -127,21 +128,99 @@ update msg model =
 
         BoardMouseUp pos ->
           let
-            one = Debug.log "BoardMouseUp: model.pieceInHandPosition " model.pieceInHandPosition
             pieceInHand = model.pieceInHand
             index = Board.squareIndexFromMousePosition model.board model.squareSize pos.x pos.y
             occupant = Board.getManFromIndex model.board index
             legalDestination move index =
               ( move.toFile, move.toRank ) == (squareFileAndRankFromIndex model.board index)
-            moves = List.filter (\move -> legalDestination move index) model.legalMoves
+            possibleMoves = List.filter (\move -> legalDestination move index) model.legalMoves
+            thisMaybeMove = List.head possibleMoves
+
+            defended defender =
+              case thisMaybeMove of
+                Just thisMaybeMove ->
+                  Man.hasDefendingAbility defender thisMaybeMove.attackingAbility
+                _ ->
+                  False
+
+            getDefenseResult thisMaybeMove =
+              case thisMaybeMove of
+                Just thisMaybeMove ->
+                  let
+                    defendingAbility = thisMaybeMove.defendingAbility
+                  in
+                    case thisMaybeMove.defendingAbility of
+                      Just defendingAbility ->
+                        Ability.getDefenseResult thisMaybeMove.attackingAbility defendingAbility
+                      _ ->
+                        Ability.PieceCaptured
+                _ ->
+                  Ability.PieceCaptured
+
+            demoteAbility man =
+              case thisMaybeMove of
+                Just thisMaybeMove ->
+                  let
+                    defendingAbility = thisMaybeMove.defendingAbility
+                  in
+                    case defendingAbility of
+                      Just defendingAbility ->
+                        Man.demoteAbility man defendingAbility
+                      _ ->
+                        man
+                _ ->
+                  man
+
+            removeAbility man =
+              case thisMaybeMove of
+                Just thisMaybeMove ->
+                  let
+                    defendingAbility = thisMaybeMove.defendingAbility
+                  in
+                    case defendingAbility of
+                      Just defendingAbility ->
+                        Man.removeAbility man defendingAbility
+                      _ ->
+                        man
+                _ ->
+                  man
+
           in
             case pieceInHand of
                 Just pieceInHand ->
-                  if List.length moves > 0 then
-                    ( { model | pieceInHand = Nothing
-                      , board = Board.putManAtIndex pieceInHand index model.board
-                      , legalMoves = []
-                      }, Cmd.none )
+                  if List.length possibleMoves > 0 then
+                    case occupant of
+                      Just occupant ->
+                        if defended occupant then
+                          case (getDefenseResult thisMaybeMove) |> Debug.log "getDefenseResult" of
+                            Ability.AbilityDemoted ->
+                              ( { model | pieceInHand = Nothing
+                                , board = Board.putManAtIndex pieceInHand model.fromIndex model.board |> Board.putManAtIndex (demoteAbility occupant) index
+                                , legalMoves = []
+                                }, Cmd.none )
+
+                            Ability.AbilityRemoved ->
+                              ( { model | pieceInHand = Nothing
+                                , board = Board.putManAtIndex pieceInHand model.fromIndex model.board |> Board.putManAtIndex (removeAbility occupant) index
+                                , legalMoves = []
+                                }, Cmd.none )
+
+                            _ -> -- Ability.PieceCaptured
+                            ( { model | pieceInHand = Nothing
+                              , board = Board.putManAtIndex pieceInHand index model.board
+                              , legalMoves = []
+                              }, Cmd.none )
+                        else
+                          ( { model | pieceInHand = Nothing
+                            , board = Board.putManAtIndex pieceInHand index model.board
+                            , legalMoves = []
+                            }, Cmd.none )
+
+                      _ ->
+                        ( { model | pieceInHand = Nothing
+                          , board = Board.putManAtIndex pieceInHand index model.board
+                          , legalMoves = []
+                          }, Cmd.none )
                   else
                     ( { model | pieceInHand = Nothing
                       , board = Board.putManAtIndex pieceInHand model.fromIndex model.board
