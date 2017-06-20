@@ -1,4 +1,23 @@
-var _user$project$Move$Move = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {fromFile: a, fromRank: b, toFile: c, toRank: d, attackingMan: e, defendingMan: f, attackingAbility: g, defendingAbility: h};
-	});
+var _user$project$Move$Move = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {fromFile: a, fromRank: b, toFile: c, toRank: d, attackingMan: e, defendingMan: f, attackingAbility: g, defendingAbility: h, mobility: i, material: j, score: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};

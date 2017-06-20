@@ -9,6 +9,21 @@ type alias Man =
     , player : Player
   }
 
+calculateValue : Man -> Int
+calculateValue man =
+  let
+    abilityValue ability =
+      case ability.abilityType of
+        Step ->
+          10
+        Slide ->
+          50
+        Jump ->
+          20
+        Fat ->
+          20
+  in
+    List.map(\ability -> abilityValue ability) man.abilities |> List.sum
 
 hasDefendingAbility : Man -> Ability -> Bool
 hasDefendingAbility defender attackingAbility =

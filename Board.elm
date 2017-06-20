@@ -4,6 +4,7 @@ import Man exposing (Man)
 import Square exposing (..)
 import Move exposing (..)
 import Ability exposing (..)
+import Player exposing (..)
 
 
 type alias Board =
@@ -24,7 +25,10 @@ squareIndexFromMousePosition board squareSize x y =
 
 squareIndex : Board -> Int -> Int -> Int
 squareIndex board file rank =
-  (rank * board.width) + file
+  -- let
+  --   test = Debug.log "index:" (rank * board.width) + file
+  -- in
+    (rank * board.width) + file
 
 
 squareFileAndRankFromIndex : Board -> Int -> ( Int, Int )
@@ -42,7 +46,17 @@ getSquare board file rank =
         gottenSquare
       Nothing ->
         { squareType = Normal, occupant = Nothing}
-
+{--
+moveMan : Int -> Int -> Board -> Board
+moveMan fromIndex toIndex board =
+  let
+    fromSquare = Array.get fromIndex board.squares
+    emptySquare = { occupant = Nothing, squareType = fromSquare.squareType }
+    toSquare = Array.get toIndex board.squares
+    occupiedSquare = { occupant = fromSquare.occupant, squareType = toSquare.squareType }
+  in
+    { board | squares = (Array.set fromIndex emptySquare board.squares) |> (Array.set toIndex occupiedSquare) }
+--}
 
 putMan : Man -> Int -> Int -> Board -> Board
 putMan man file rank board =
@@ -52,6 +66,13 @@ putMan man file rank board =
   in
     { board | squares = Array.set (squareIndex board file rank) occupiedSquare board.squares }
 
+clearMan : Int -> Int -> Board -> Board
+clearMan file rank board =
+  let
+    theSquare = getSquare board file rank
+    clearedSquare = { occupant = theSquare.occupant, squareType = theSquare.squareType }
+  in
+    { board | squares = Array.set (squareIndex board file rank) clearedSquare board.squares }
 
 putManAtIndex : Man -> Int -> Board -> Board
 putManAtIndex man index board =
@@ -69,9 +90,10 @@ getMan board file rank =
   in
     theSquare.occupant
 
-clearManFromIndex : Board -> Int -> Board
-clearManFromIndex board index =
+clearManFromIndex : Int -> Board -> Board
+clearManFromIndex index board =
   { board | squares = Array.set index { squareType = Normal, occupant = Nothing} board.squares }
+
 
 
 getManFromIndex : Board -> Int -> Maybe Man
@@ -95,14 +117,13 @@ sameTeam maybeMan man =
       False
 
 
-addMoveToList : Ability -> Board -> Int -> Man -> List Move -> List Move
-addMoveToList ability board index man moveList =
+addMoveToList : Ability -> Board -> Int -> Int -> Man -> List Move -> List Move
+addMoveToList ability board fromIndex toIndex man moveList =
   let
-    showRank = Debug.log "rank " rank
-    file = (rem index board.width)
-    rank = (index // board.width)
-    toFile = file + ability.xOffset
-    toRank = rank + ability.yOffset
+    file = (rem fromIndex board.width)
+    rank = (fromIndex // board.width)
+    toFile = (rem toIndex board.width) + ability.xOffset
+    toRank = (toIndex // board.width) + ability.yOffset
     defendingMan = getMan board toFile toRank
     defendingAbility = Man.getDefendingAbility defendingMan ability
     nextIndex = (toRank * board.width) + toFile
@@ -111,23 +132,186 @@ addMoveToList ability board index man moveList =
   in
     if isLegalMove board toFile toRank man defendingMan then
       if (ability.abilityType == Slide) && (defendingMan == Nothing) then
-        moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility] ++ addMoveToList ability board nextIndex man moveList
+        moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility 0 0 0] ++ addMoveToList ability board fromIndex nextIndex man moveList
       else
-        moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility]
+        if defendingMan == Nothing then
+          moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility 0 0 0]
+        else
+          moveList ++ [Move file rank toFile toRank man defendingMan ability defendingAbility 0 0 100]
     else
       moveList
 
 
-generateLegalMovesForPiece : Board -> Maybe Man -> Int -> List Move
-generateLegalMovesForPiece board maybeMan index =
+generateLegalMovesForPiece : Board -> Maybe Man -> Int -> Player -> List Move
+generateLegalMovesForPiece board maybeMan index player =
   case maybeMan of
     Just maybeMan ->
-      let
-        man = maybeMan
-        moveList = []
-        moveListList = List.map (\ability -> addMoveToList ability board index man moveList) man.abilities
-      in
-        List.concat moveListList
-        --[ Move 0 6 0 5 man Nothing Ability.stepNorth Nothing]
+      if maybeMan.player == player then
+        let
+          man = maybeMan
+          moveList = []
+          toIndex = index -- prime the pump for slide type moves
+          moveListList = List.map (\ability -> addMoveToList ability board index toIndex man moveList) man.abilities
+        in
+          List.concat moveListList
+      else
+        []
     _ ->
       []
+
+getAIMoves : Board -> Player -> List Move
+getAIMoves board player =
+  let
+    squaresRange = List.range 0 ((Array.length board.squares) - 1)
+    indexedList = Array.toIndexedList board.squares
+    indexedOccupiedList = List.filter (\(i, s) -> s.occupant /= Nothing) indexedList
+    moveListList = List.map (\(i, s) -> generateLegalMovesForPiece board s.occupant i player) indexedOccupiedList
+  in
+    List.concat moveListList
+
+scoreMoveMobility : Board -> Player -> Move -> Move
+scoreMoveMobility board player move =
+  let
+    hypothetical = makeMove board move
+    moveList = getAIMoves hypothetical player
+    mobility = List.length moveList
+  in
+    {move | mobility = mobility}
+
+scoreBoard : Board -> Player -> Int
+scoreBoard board player =
+  let
+    getScore man =
+      case man of
+        Just man ->
+          Man.calculateValue man
+        _ ->
+          0
+  in
+    Array.toList board.squares |> List.map(\square -> getScore square.occupant) |> List.sum
+
+
+scoreMoveMaterial : Board -> Player -> Move -> Move
+scoreMoveMaterial board player move =
+  let
+    fromIndex = squareIndex board move.fromFile move.fromRank
+    toIndex = squareIndex board move.toFile move.toRank
+    occupant = getManFromIndex board toIndex
+  in
+    case occupant of
+      Just occupant ->
+        let
+          defendingAbility = move.defendingAbility
+          manValue = Man.calculateValue occupant
+        in
+          case move.defendingAbility of
+            Just defendingAbility ->
+              case (Ability.getDefenseResult move.attackingAbility defendingAbility) of
+                Ability.AbilityDemoted ->
+                  {move | score = move.mobility + 25, material = 25}
+                Ability.AbilityRemoved ->
+                  {move | score = move.mobility + 50, material = 50}
+                Ability.PieceCaptured ->
+                  {move | score = move.mobility + manValue, material = manValue}
+            _ -> -- Ability.PieceCaptured
+              {move | score = move.mobility + manValue, material = manValue}
+
+      _ ->
+        {move | score = move.mobility}
+
+
+makeMove : Board -> Move -> Board
+makeMove board move =
+  let
+    fromIndex = squareIndex board move.fromFile move.fromRank
+    toIndex = squareIndex board move.toFile move.toRank
+    test = Debug.log "fromIndex:" fromIndex
+    test2 = Debug.log "toIndex:" toIndex
+
+    occupant = getManFromIndex board toIndex
+    defended =
+      case occupant of
+        Just occupant ->
+          Man.hasDefendingAbility occupant move.attackingAbility
+        _ ->
+          False
+    getDefenseResult move =
+      let
+        defendingAbility = move.defendingAbility
+      in
+        case move.defendingAbility of
+          Just defendingAbility ->
+            Ability.getDefenseResult move.attackingAbility defendingAbility
+          _ ->
+            Ability.PieceCaptured
+    demoteAbility man =
+      let
+        defendingAbility = move.defendingAbility
+      in
+        case defendingAbility of
+          Just defendingAbility ->
+            Man.demoteAbility man defendingAbility
+          _ ->
+            man
+    removeAbility man =
+      let
+        defendingAbility = move.defendingAbility
+      in
+        case defendingAbility of
+          Just defendingAbility ->
+            Man.removeAbility man defendingAbility
+          _ ->
+            man
+  in
+    case occupant of
+      Just occupant ->
+        --if defended then
+          case (getDefenseResult move) of
+            Ability.AbilityDemoted ->
+              Debug.log "Ability.AbilityDemoted"
+              putManAtIndex (demoteAbility occupant) toIndex board
+            Ability.AbilityRemoved ->
+              Debug.log "Ability.AbilityRemoved"
+              putManAtIndex (removeAbility occupant) toIndex board
+            Ability.PieceCaptured ->
+              Debug.log "Ability.PieceCaptured"
+              putManAtIndex move.attackingMan toIndex board |> clearManFromIndex fromIndex
+        --else -- no opposing prong
+          --Debug.log "no opposing prong"
+          --putManAtIndex move.attackingMan toIndex board |> clearMan move.fromFile move.fromRank
+      _ -> -- no piece in target square
+        Debug.log "no piece in target square"
+        --moveMan fromIndex toIndex board
+        putManAtIndex move.attackingMan toIndex board |> clearManFromIndex fromIndex
+
+
+debugMove : Move -> Move
+debugMove move =
+  let
+    _ = Debug.log "fromFile " move.fromFile
+    _ = Debug.log "fromRank " move.fromRank
+    _ = Debug.log "toFile " move.toFile
+    _ = Debug.log "toRank " move.toRank
+    _ = Debug.log "mobility " move.mobility
+    _ = Debug.log "material " move.material
+    _ = Debug.log "score " move.score
+  in
+    move
+
+makeAIMove : Player -> Board -> Board
+makeAIMove player board =
+  let
+    moveList = getAIMoves board player
+    scoredMobility = List.map (\move -> scoreMoveMobility board player move) moveList
+    scoredMoves = List.map (\move -> scoreMoveMaterial board player move) scoredMobility
+    sortedMoves = List.sortBy .score scoredMoves |> List.reverse --scoredMoves |> List.reverse
+    sortedMoves2 = List.map (\move -> debugMove move) sortedMoves
+    maybeMove = List.head sortedMoves
+  in
+    case maybeMove of
+      Just maybeMove ->
+        let _ = Debug.log "score " maybeMove.score
+        in
+          makeMove board maybeMove
+      _ ->
+        board
