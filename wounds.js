@@ -9340,6 +9340,9 @@ var _user$project$AbilityView$drawAbility = F5(
 
 var _user$project$Player$bluePlayer = {name: 'Blue', directionX: 0, directionY: 1};
 var _user$project$Player$redPlayer = {name: 'Red', directionX: 0, directionY: -1};
+var _user$project$Player$getNextPlayer = function (player) {
+	return _elm_lang$core$Native_Utils.eq(player, _user$project$Player$redPlayer) ? _user$project$Player$bluePlayer : _user$project$Player$redPlayer;
+};
 var _user$project$Player$Player = F3(
 	function (a, b, c) {
 		return {name: a, directionX: b, directionY: c};
@@ -9724,6 +9727,28 @@ var _user$project$Man$hasDefendingAbility = F2(
 			_elm_lang$core$List$length(matches),
 			0) > 0;
 	});
+var _user$project$Man$calculateValue = function (man) {
+	var abilityValue = function (ability) {
+		var _p1 = ability.abilityType;
+		switch (_p1.ctor) {
+			case 'Step':
+				return 10;
+			case 'Slide':
+				return 50;
+			case 'Jump':
+				return 20;
+			default:
+				return 20;
+		}
+	};
+	return _elm_lang$core$List$sum(
+		A2(
+			_elm_lang$core$List$map,
+			function (ability) {
+				return abilityValue(ability);
+			},
+			man.abilities));
+};
 var _user$project$Man$Man = F3(
 	function (a, b, c) {
 		return {abilities: a, name: b, player: c};
@@ -9738,16 +9763,63 @@ var _user$project$Square$RedExit = {ctor: 'RedExit'};
 var _user$project$Square$OffLimits = {ctor: 'OffLimits'};
 var _user$project$Square$Normal = {ctor: 'Normal'};
 
-var _user$project$Move$Move = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {fromFile: a, fromRank: b, toFile: c, toRank: d, attackingMan: e, defendingMan: f, attackingAbility: g, defendingAbility: h};
-	});
+var _user$project$Move$Move = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {fromFile: a, fromRank: b, toFile: c, toRank: d, attackingMan: e, defendingMan: f, attackingAbility: g, defendingAbility: h, mobility: i, material: j, score: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
 
+var _user$project$Board$debugMove = function (move) {
+	var _p0 = A2(_elm_lang$core$Debug$log, 'score ', move.score);
+	var _p1 = A2(_elm_lang$core$Debug$log, 'material ', move.material);
+	var _p2 = A2(_elm_lang$core$Debug$log, 'mobility ', move.mobility);
+	var _p3 = A2(_elm_lang$core$Debug$log, 'toRank ', move.toRank);
+	var _p4 = A2(_elm_lang$core$Debug$log, 'toFile ', move.toFile);
+	var _p5 = A2(_elm_lang$core$Debug$log, 'fromRank ', move.fromRank);
+	var _p6 = A2(_elm_lang$core$Debug$log, 'fromFile ', move.fromFile);
+	return move;
+};
+var _user$project$Board$scoreBoard = F2(
+	function (board, player) {
+		var getScore = function (man) {
+			var _p7 = man;
+			if (_p7.ctor === 'Just') {
+				return _user$project$Man$calculateValue(_p7._0);
+			} else {
+				return 0;
+			}
+		};
+		return _elm_lang$core$List$sum(
+			A2(
+				_elm_lang$core$List$map,
+				function (square) {
+					return getScore(square.occupant);
+				},
+				_elm_lang$core$Array$toList(board.squares)));
+	});
 var _user$project$Board$sameTeam = F2(
 	function (maybeMan, man) {
-		var _p0 = maybeMan;
-		if (_p0.ctor === 'Just') {
-			return _elm_lang$core$Native_Utils.eq(_p0._0.player, man.player);
+		var _p8 = maybeMan;
+		if (_p8.ctor === 'Just') {
+			return _elm_lang$core$Native_Utils.eq(_p8._0.player, man.player);
 		} else {
 			return false;
 		}
@@ -9755,15 +9827,15 @@ var _user$project$Board$sameTeam = F2(
 var _user$project$Board$getManFromIndex = F2(
 	function (board, index) {
 		var gottenSquare = A2(_elm_lang$core$Array$get, index, board.squares);
-		var _p1 = gottenSquare;
-		if (_p1.ctor === 'Just') {
-			return _p1._0.occupant;
+		var _p9 = gottenSquare;
+		if (_p9.ctor === 'Just') {
+			return _p9._0.occupant;
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
 	});
 var _user$project$Board$clearManFromIndex = F2(
-	function (board, index) {
+	function (index, board) {
 		return _elm_lang$core$Native_Utils.update(
 			board,
 			{
@@ -9792,9 +9864,9 @@ var _user$project$Board$getSquare = F3(
 			_elm_lang$core$Array$get,
 			A3(_user$project$Board$squareIndex, board, file, rank),
 			board.squares);
-		var _p2 = gottenSquare;
-		if (_p2.ctor === 'Just') {
-			return _p2._0;
+		var _p10 = gottenSquare;
+		if (_p10.ctor === 'Just') {
+			return _p10._0;
 		} else {
 			return {squareType: _user$project$Square$Normal, occupant: _elm_lang$core$Maybe$Nothing};
 		}
@@ -9804,20 +9876,19 @@ var _user$project$Board$getMan = F3(
 		var theSquare = A3(_user$project$Board$getSquare, board, file, rank);
 		return theSquare.occupant;
 	});
-var _user$project$Board$addMoveToList = F5(
-	function (ability, board, index, man, moveList) {
+var _user$project$Board$addMoveToList = F6(
+	function (ability, board, fromIndex, toIndex, man, moveList) {
 		var isLegalMove = F5(
 			function (board, toFile, toRank, man, defendingMan) {
 				return (_elm_lang$core$Native_Utils.cmp(toFile, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toFile, board.width) < 0) && ((_elm_lang$core$Native_Utils.cmp(toRank, 0) > -1) && ((_elm_lang$core$Native_Utils.cmp(toRank, board.height) < 0) && (!A2(_user$project$Board$sameTeam, defendingMan, man)))));
 			});
-		var rank = (index / board.width) | 0;
-		var toRank = rank + ability.yOffset;
-		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
-		var toFile = file + ability.xOffset;
+		var toRank = ((toIndex / board.width) | 0) + ability.yOffset;
+		var toFile = A2(_elm_lang$core$Basics$rem, toIndex, board.width) + ability.xOffset;
 		var defendingMan = A3(_user$project$Board$getMan, board, toFile, toRank);
 		var defendingAbility = A2(_user$project$Man$getDefendingAbility, defendingMan, ability);
 		var nextIndex = (toRank * board.width) + toFile;
-		var showRank = A2(_elm_lang$core$Debug$log, 'rank ', rank);
+		var rank = (fromIndex / board.width) | 0;
+		var file = A2(_elm_lang$core$Basics$rem, fromIndex, board.width);
 		return A5(isLegalMove, board, toFile, toRank, man, defendingMan) ? ((_elm_lang$core$Native_Utils.eq(ability.abilityType, _user$project$Ability$Slide) && _elm_lang$core$Native_Utils.eq(defendingMan, _elm_lang$core$Maybe$Nothing)) ? A2(
 			_elm_lang$core$Basics_ops['++'],
 			moveList,
@@ -9825,34 +9896,70 @@ var _user$project$Board$addMoveToList = F5(
 				_elm_lang$core$Basics_ops['++'],
 				{
 					ctor: '::',
-					_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, defendingAbility),
+					_0: _user$project$Move$Move(file)(rank)(toFile)(toRank)(man)(defendingMan)(ability)(defendingAbility)(0)(0)(0),
 					_1: {ctor: '[]'}
 				},
-				A5(_user$project$Board$addMoveToList, ability, board, nextIndex, man, moveList))) : A2(
+				A6(_user$project$Board$addMoveToList, ability, board, fromIndex, nextIndex, man, moveList))) : (_elm_lang$core$Native_Utils.eq(defendingMan, _elm_lang$core$Maybe$Nothing) ? A2(
 			_elm_lang$core$Basics_ops['++'],
 			moveList,
 			{
 				ctor: '::',
-				_0: A8(_user$project$Move$Move, file, rank, toFile, toRank, man, defendingMan, ability, defendingAbility),
+				_0: _user$project$Move$Move(file)(rank)(toFile)(toRank)(man)(defendingMan)(ability)(defendingAbility)(0)(0)(0),
 				_1: {ctor: '[]'}
-			})) : moveList;
+			}) : A2(
+			_elm_lang$core$Basics_ops['++'],
+			moveList,
+			{
+				ctor: '::',
+				_0: _user$project$Move$Move(file)(rank)(toFile)(toRank)(man)(defendingMan)(ability)(defendingAbility)(0)(0)(100),
+				_1: {ctor: '[]'}
+			}))) : moveList;
 	});
-var _user$project$Board$generateLegalMovesForPiece = F3(
-	function (board, maybeMan, index) {
-		var _p3 = maybeMan;
-		if (_p3.ctor === 'Just') {
-			var moveList = {ctor: '[]'};
-			var man = _p3._0;
-			var moveListList = A2(
-				_elm_lang$core$List$map,
-				function (ability) {
-					return A5(_user$project$Board$addMoveToList, ability, board, index, man, moveList);
-				},
-				man.abilities);
-			return _elm_lang$core$List$concat(moveListList);
+var _user$project$Board$generateLegalMovesForPiece = F4(
+	function (board, maybeMan, index, player) {
+		var _p11 = maybeMan;
+		if (_p11.ctor === 'Just') {
+			var _p12 = _p11._0;
+			if (_elm_lang$core$Native_Utils.eq(_p12.player, player)) {
+				var toIndex = index;
+				var moveList = {ctor: '[]'};
+				var man = _p12;
+				var moveListList = A2(
+					_elm_lang$core$List$map,
+					function (ability) {
+						return A6(_user$project$Board$addMoveToList, ability, board, index, toIndex, man, moveList);
+					},
+					man.abilities);
+				return _elm_lang$core$List$concat(moveListList);
+			} else {
+				return {ctor: '[]'};
+			}
 		} else {
 			return {ctor: '[]'};
 		}
+	});
+var _user$project$Board$getAIMoves = F2(
+	function (board, player) {
+		var indexedList = _elm_lang$core$Array$toIndexedList(board.squares);
+		var indexedOccupiedList = A2(
+			_elm_lang$core$List$filter,
+			function (_p13) {
+				var _p14 = _p13;
+				return !_elm_lang$core$Native_Utils.eq(_p14._1.occupant, _elm_lang$core$Maybe$Nothing);
+			},
+			indexedList);
+		var moveListList = A2(
+			_elm_lang$core$List$map,
+			function (_p15) {
+				var _p16 = _p15;
+				return A4(_user$project$Board$generateLegalMovesForPiece, board, _p16._1.occupant, _p16._0, player);
+			},
+			indexedOccupiedList);
+		var squaresRange = A2(
+			_elm_lang$core$List$range,
+			0,
+			_elm_lang$core$Array$length(board.squares) - 1);
+		return _elm_lang$core$List$concat(moveListList);
 	});
 var _user$project$Board$putMan = F4(
 	function (man, file, rank, board) {
@@ -9876,6 +9983,180 @@ var _user$project$Board$putManAtIndex = F3(
 		var rank = (index / board.width) | 0;
 		var file = A2(_elm_lang$core$Basics$rem, index, board.width);
 		return A4(_user$project$Board$putMan, man, file, rank, board);
+	});
+var _user$project$Board$clearMan = F3(
+	function (file, rank, board) {
+		var theSquare = A3(_user$project$Board$getSquare, board, file, rank);
+		var clearedSquare = {occupant: theSquare.occupant, squareType: theSquare.squareType};
+		return _elm_lang$core$Native_Utils.update(
+			board,
+			{
+				squares: A3(
+					_elm_lang$core$Array$set,
+					A3(_user$project$Board$squareIndex, board, file, rank),
+					clearedSquare,
+					board.squares)
+			});
+	});
+var _user$project$Board$scoreMoveMaterial = F3(
+	function (board, player, move) {
+		var toIndex = A3(_user$project$Board$squareIndex, board, move.toFile, move.toRank);
+		var occupant = A2(_user$project$Board$getManFromIndex, board, toIndex);
+		var fromIndex = A3(_user$project$Board$squareIndex, board, move.fromFile, move.fromRank);
+		var _p17 = occupant;
+		if (_p17.ctor === 'Just') {
+			var manValue = _user$project$Man$calculateValue(_p17._0);
+			var defendingAbility = move.defendingAbility;
+			var _p18 = move.defendingAbility;
+			if (_p18.ctor === 'Just') {
+				var _p19 = A2(_user$project$Ability$getDefenseResult, move.attackingAbility, _p18._0);
+				switch (_p19.ctor) {
+					case 'AbilityDemoted':
+						return _elm_lang$core$Native_Utils.update(
+							move,
+							{score: move.mobility + 25, material: 25});
+					case 'AbilityRemoved':
+						return _elm_lang$core$Native_Utils.update(
+							move,
+							{score: move.mobility + 50, material: 50});
+					default:
+						return _elm_lang$core$Native_Utils.update(
+							move,
+							{score: move.mobility + manValue, material: manValue});
+				}
+			} else {
+				return _elm_lang$core$Native_Utils.update(
+					move,
+					{score: move.mobility + manValue, material: manValue});
+			}
+		} else {
+			return _elm_lang$core$Native_Utils.update(
+				move,
+				{score: move.mobility});
+		}
+	});
+var _user$project$Board$makeMove = F2(
+	function (board, move) {
+		var removeAbility = function (man) {
+			var defendingAbility = move.defendingAbility;
+			var _p20 = defendingAbility;
+			if (_p20.ctor === 'Just') {
+				return A2(_user$project$Man$removeAbility, man, _p20._0);
+			} else {
+				return man;
+			}
+		};
+		var demoteAbility = function (man) {
+			var defendingAbility = move.defendingAbility;
+			var _p21 = defendingAbility;
+			if (_p21.ctor === 'Just') {
+				return A2(_user$project$Man$demoteAbility, man, _p21._0);
+			} else {
+				return man;
+			}
+		};
+		var getDefenseResult = function (move) {
+			var defendingAbility = move.defendingAbility;
+			var _p22 = move.defendingAbility;
+			if (_p22.ctor === 'Just') {
+				return A2(_user$project$Ability$getDefenseResult, move.attackingAbility, _p22._0);
+			} else {
+				return _user$project$Ability$PieceCaptured;
+			}
+		};
+		var toIndex = A3(_user$project$Board$squareIndex, board, move.toFile, move.toRank);
+		var test2 = A2(_elm_lang$core$Debug$log, 'toIndex:', toIndex);
+		var occupant = A2(_user$project$Board$getManFromIndex, board, toIndex);
+		var defended = function () {
+			var _p23 = occupant;
+			if (_p23.ctor === 'Just') {
+				return A2(_user$project$Man$hasDefendingAbility, _p23._0, move.attackingAbility);
+			} else {
+				return false;
+			}
+		}();
+		var fromIndex = A3(_user$project$Board$squareIndex, board, move.fromFile, move.fromRank);
+		var test = A2(_elm_lang$core$Debug$log, 'fromIndex:', fromIndex);
+		var _p24 = occupant;
+		if (_p24.ctor === 'Just') {
+			var _p26 = _p24._0;
+			var _p25 = getDefenseResult(move);
+			switch (_p25.ctor) {
+				case 'AbilityDemoted':
+					return A5(
+						_elm_lang$core$Debug$log,
+						'Ability.AbilityDemoted',
+						_user$project$Board$putManAtIndex,
+						demoteAbility(_p26),
+						toIndex,
+						board);
+				case 'AbilityRemoved':
+					return A5(
+						_elm_lang$core$Debug$log,
+						'Ability.AbilityRemoved',
+						_user$project$Board$putManAtIndex,
+						removeAbility(_p26),
+						toIndex,
+						board);
+				default:
+					return A2(
+						_user$project$Board$clearManFromIndex,
+						fromIndex,
+						A5(_elm_lang$core$Debug$log, 'Ability.PieceCaptured', _user$project$Board$putManAtIndex, move.attackingMan, toIndex, board));
+			}
+		} else {
+			return A2(
+				_user$project$Board$clearManFromIndex,
+				fromIndex,
+				A5(_elm_lang$core$Debug$log, 'no piece in target square', _user$project$Board$putManAtIndex, move.attackingMan, toIndex, board));
+		}
+	});
+var _user$project$Board$scoreMoveMobility = F3(
+	function (board, player, move) {
+		var hypothetical = A2(_user$project$Board$makeMove, board, move);
+		var moveList = A2(_user$project$Board$getAIMoves, hypothetical, player);
+		var mobility = _elm_lang$core$List$length(moveList);
+		return _elm_lang$core$Native_Utils.update(
+			move,
+			{mobility: mobility});
+	});
+var _user$project$Board$makeAIMove = F2(
+	function (player, board) {
+		var moveList = A2(_user$project$Board$getAIMoves, board, player);
+		var scoredMobility = A2(
+			_elm_lang$core$List$map,
+			function (move) {
+				return A3(_user$project$Board$scoreMoveMobility, board, player, move);
+			},
+			moveList);
+		var scoredMoves = A2(
+			_elm_lang$core$List$map,
+			function (move) {
+				return A3(_user$project$Board$scoreMoveMaterial, board, player, move);
+			},
+			scoredMobility);
+		var sortedMoves = _elm_lang$core$List$reverse(
+			A2(
+				_elm_lang$core$List$sortBy,
+				function (_) {
+					return _.score;
+				},
+				scoredMoves));
+		var sortedMoves2 = A2(
+			_elm_lang$core$List$map,
+			function (move) {
+				return _user$project$Board$debugMove(move);
+			},
+			sortedMoves);
+		var maybeMove = _elm_lang$core$List$head(sortedMoves);
+		var _p27 = maybeMove;
+		if (_p27.ctor === 'Just') {
+			var _p29 = _p27._0;
+			var _p28 = A2(_elm_lang$core$Debug$log, 'score ', _p29.score);
+			return A2(_user$project$Board$makeMove, board, _p29);
+		} else {
+			return board;
+		}
 	});
 var _user$project$Board$squareIndexFromMousePosition = F4(
 	function (board, squareSize, x, y) {
@@ -10351,7 +10632,7 @@ var _user$project$Wounds$update = F2(
 				var pieceInHand = model.pieceInHand;
 				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseDown: model.pieceInHandPosition ', model.pieceInHandPosition);
 				if (!_elm_lang$core$Native_Utils.eq(occupant, _elm_lang$core$Maybe$Nothing)) {
-					var legalMoves = A3(_user$project$Board$generateLegalMovesForPiece, model.board, occupant, index);
+					var legalMoves = A4(_user$project$Board$generateLegalMovesForPiece, model.board, occupant, index, model.whoseTurn);
 					return (_elm_lang$core$Native_Utils.cmp(
 						_elm_lang$core$List$length(legalMoves),
 						0) > 0) ? {
@@ -10362,7 +10643,7 @@ var _user$project$Wounds$update = F2(
 								pieceInHand: occupant,
 								pieceInHandPosition: _p10,
 								fromIndex: index,
-								board: A2(_user$project$Board$clearManFromIndex, model.board, index),
+								board: A2(_user$project$Board$clearManFromIndex, index, model.board),
 								legalMoves: legalMoves
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
@@ -10461,11 +10742,14 @@ var _user$project$Wounds$update = F2(
 												model,
 												{
 													pieceInHand: _elm_lang$core$Maybe$Nothing,
-													board: A3(
-														_user$project$Board$putManAtIndex,
-														demoteAbility(_p22),
-														index,
-														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													board: A2(
+														_user$project$Board$makeAIMove,
+														_user$project$Player$getNextPlayer(model.whoseTurn),
+														A3(
+															_user$project$Board$putManAtIndex,
+															demoteAbility(_p22),
+															index,
+															A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board))),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -10477,11 +10761,14 @@ var _user$project$Wounds$update = F2(
 												model,
 												{
 													pieceInHand: _elm_lang$core$Maybe$Nothing,
-													board: A3(
-														_user$project$Board$putManAtIndex,
-														removeAbility(_p22),
-														index,
-														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													board: A2(
+														_user$project$Board$makeAIMove,
+														_user$project$Player$getNextPlayer(model.whoseTurn),
+														A3(
+															_user$project$Board$putManAtIndex,
+															removeAbility(_p22),
+															index,
+															A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board))),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -10493,7 +10780,10 @@ var _user$project$Wounds$update = F2(
 												model,
 												{
 													pieceInHand: _elm_lang$core$Maybe$Nothing,
-													board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+													board: A2(
+														_user$project$Board$makeAIMove,
+														_user$project$Player$getNextPlayer(model.whoseTurn),
+														A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -10506,7 +10796,10 @@ var _user$project$Wounds$update = F2(
 										model,
 										{
 											pieceInHand: _elm_lang$core$Maybe$Nothing,
-											board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+											board: A2(
+												_user$project$Board$makeAIMove,
+												_user$project$Player$getNextPlayer(model.whoseTurn),
+												A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
 											legalMoves: {ctor: '[]'}
 										}),
 									_1: _elm_lang$core$Platform_Cmd$none
@@ -10519,7 +10812,10 @@ var _user$project$Wounds$update = F2(
 									model,
 									{
 										pieceInHand: _elm_lang$core$Maybe$Nothing,
-										board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+										board: A2(
+											_user$project$Board$makeAIMove,
+											_user$project$Player$getNextPlayer(model.whoseTurn),
+											A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
 										legalMoves: {ctor: '[]'}
 									}),
 								_1: _elm_lang$core$Platform_Cmd$none
@@ -10545,8 +10841,8 @@ var _user$project$Wounds$update = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 86, column: 5},
-						end: {line: 233, column: 33}
+						start: {line: 87, column: 5},
+						end: {line: 241, column: 33}
 					},
 					_p8)('update');
 		}
@@ -10564,9 +10860,9 @@ var _user$project$Wounds$FileRank = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
-var _user$project$Wounds$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, fromIndex: f, board: g, legalMoves: h};
+var _user$project$Wounds$Model = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, fromIndex: f, board: g, legalMoves: h, whoseTurn: i};
 	});
 var _user$project$Wounds$BoardMouseUp = function (a) {
 	return {ctor: 'BoardMouseUp', _0: a};
@@ -10711,7 +11007,8 @@ var _user$project$Wounds$init = function () {
 			pieceInHand: _elm_lang$core$Maybe$Nothing,
 			fromIndex: 0,
 			board: _user$project$Game$setUpPowerChess,
-			legalMoves: {ctor: '[]'}
+			legalMoves: {ctor: '[]'},
+			whoseTurn: _user$project$Player$redPlayer
 		},
 		_1: A2(_elm_lang$core$Task$perform, _user$project$Wounds$WindowSize, _elm_lang$window$Window$size)
 	};

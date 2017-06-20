@@ -13,4 +13,7 @@ type alias Move =
   , defendingMan : Maybe Man
   , attackingAbility : Ability
   , defendingAbility : Maybe Ability
+  , mobility : Int
+  , material : Int
+  , score : Int
   }

@@ -18,3 +18,10 @@ bluePlayer =
     , directionX = 0
     , directionY = 1
   }
+
+getNextPlayer : Player -> Player
+getNextPlayer player =
+  if player == redPlayer then
+    bluePlayer
+  else
+    redPlayer

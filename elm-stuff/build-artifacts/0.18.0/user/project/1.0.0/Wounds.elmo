@@ -225,7 +225,7 @@ var _user$project$Wounds$update = F2(
 				var pieceInHand = model.pieceInHand;
 				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseDown: model.pieceInHandPosition ', model.pieceInHandPosition);
 				if (!_elm_lang$core$Native_Utils.eq(occupant, _elm_lang$core$Maybe$Nothing)) {
-					var legalMoves = A3(_user$project$Board$generateLegalMovesForPiece, model.board, occupant, index);
+					var legalMoves = A4(_user$project$Board$generateLegalMovesForPiece, model.board, occupant, index, model.whoseTurn);
 					return (_elm_lang$core$Native_Utils.cmp(
 						_elm_lang$core$List$length(legalMoves),
 						0) > 0) ? {
@@ -236,7 +236,7 @@ var _user$project$Wounds$update = F2(
 								pieceInHand: occupant,
 								pieceInHandPosition: _p10,
 								fromIndex: index,
-								board: A2(_user$project$Board$clearManFromIndex, model.board, index),
+								board: A2(_user$project$Board$clearManFromIndex, index, model.board),
 								legalMoves: legalMoves
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
@@ -335,11 +335,14 @@ var _user$project$Wounds$update = F2(
 												model,
 												{
 													pieceInHand: _elm_lang$core$Maybe$Nothing,
-													board: A3(
-														_user$project$Board$putManAtIndex,
-														demoteAbility(_p22),
-														index,
-														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													board: A2(
+														_user$project$Board$makeAIMove,
+														_user$project$Player$getNextPlayer(model.whoseTurn),
+														A3(
+															_user$project$Board$putManAtIndex,
+															demoteAbility(_p22),
+															index,
+															A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board))),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -351,11 +354,14 @@ var _user$project$Wounds$update = F2(
 												model,
 												{
 													pieceInHand: _elm_lang$core$Maybe$Nothing,
-													board: A3(
-														_user$project$Board$putManAtIndex,
-														removeAbility(_p22),
-														index,
-														A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board)),
+													board: A2(
+														_user$project$Board$makeAIMove,
+														_user$project$Player$getNextPlayer(model.whoseTurn),
+														A3(
+															_user$project$Board$putManAtIndex,
+															removeAbility(_p22),
+															index,
+															A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board))),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -367,7 +373,10 @@ var _user$project$Wounds$update = F2(
 												model,
 												{
 													pieceInHand: _elm_lang$core$Maybe$Nothing,
-													board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+													board: A2(
+														_user$project$Board$makeAIMove,
+														_user$project$Player$getNextPlayer(model.whoseTurn),
+														A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -380,7 +389,10 @@ var _user$project$Wounds$update = F2(
 										model,
 										{
 											pieceInHand: _elm_lang$core$Maybe$Nothing,
-											board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+											board: A2(
+												_user$project$Board$makeAIMove,
+												_user$project$Player$getNextPlayer(model.whoseTurn),
+												A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
 											legalMoves: {ctor: '[]'}
 										}),
 									_1: _elm_lang$core$Platform_Cmd$none
@@ -393,7 +405,10 @@ var _user$project$Wounds$update = F2(
 									model,
 									{
 										pieceInHand: _elm_lang$core$Maybe$Nothing,
-										board: A3(_user$project$Board$putManAtIndex, _p23, index, model.board),
+										board: A2(
+											_user$project$Board$makeAIMove,
+											_user$project$Player$getNextPlayer(model.whoseTurn),
+											A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
 										legalMoves: {ctor: '[]'}
 									}),
 								_1: _elm_lang$core$Platform_Cmd$none
@@ -419,8 +434,8 @@ var _user$project$Wounds$update = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 86, column: 5},
-						end: {line: 233, column: 33}
+						start: {line: 87, column: 5},
+						end: {line: 241, column: 33}
 					},
 					_p8)('update');
 		}
@@ -438,9 +453,9 @@ var _user$project$Wounds$FileRank = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
-var _user$project$Wounds$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, fromIndex: f, board: g, legalMoves: h};
+var _user$project$Wounds$Model = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {squareSize: a, size: b, mousePosition: c, pieceInHandPosition: d, pieceInHand: e, fromIndex: f, board: g, legalMoves: h, whoseTurn: i};
 	});
 var _user$project$Wounds$BoardMouseUp = function (a) {
 	return {ctor: 'BoardMouseUp', _0: a};
@@ -585,7 +600,8 @@ var _user$project$Wounds$init = function () {
 			pieceInHand: _elm_lang$core$Maybe$Nothing,
 			fromIndex: 0,
 			board: _user$project$Game$setUpPowerChess,
-			legalMoves: {ctor: '[]'}
+			legalMoves: {ctor: '[]'},
+			whoseTurn: _user$project$Player$redPlayer
 		},
 		_1: A2(_elm_lang$core$Task$perform, _user$project$Wounds$WindowSize, _elm_lang$window$Window$size)
 	};

@@ -58,6 +58,7 @@ type alias Model =
     , fromIndex : Int
     , board : Board
     , legalMoves : List Move
+    , whoseTurn : Player
     }
 
 
@@ -76,10 +77,10 @@ init =
       , fromIndex = 0
       , board = Game.setUpPowerChess
       , legalMoves = []
+      , whoseTurn = Player.redPlayer
       }
     , Task.perform WindowSize Window.size
     )
-
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -111,13 +112,13 @@ update msg model =
           in
             if occupant /= Nothing then
               let
-                legalMoves = Board.generateLegalMovesForPiece model.board occupant index
+                legalMoves = Board.generateLegalMovesForPiece model.board occupant index model.whoseTurn
               in
                 if List.length legalMoves > 0 then
                   ( { model | pieceInHand = occupant
                     , pieceInHandPosition = pos
                     , fromIndex = index
-                    , board = Board.clearManFromIndex model.board index
+                    , board = Board.clearManFromIndex index model.board
                     , legalMoves = legalMoves
                     }
                   , Cmd.none )
@@ -195,38 +196,45 @@ update msg model =
                           case (getDefenseResult thisMaybeMove) |> Debug.log "getDefenseResult" of
                             Ability.AbilityDemoted ->
                               ( { model | pieceInHand = Nothing
-                                , board = Board.putManAtIndex pieceInHand model.fromIndex model.board |> Board.putManAtIndex (demoteAbility occupant) index
+                                , board = Board.putManAtIndex pieceInHand model.fromIndex model.board
+                                        |> Board.putManAtIndex (demoteAbility occupant) index
+                                        |> Board.makeAIMove (Player.getNextPlayer model.whoseTurn)
                                 , legalMoves = []
                                 }, Cmd.none )
 
                             Ability.AbilityRemoved ->
                               ( { model | pieceInHand = Nothing
-                                , board = Board.putManAtIndex pieceInHand model.fromIndex model.board |> Board.putManAtIndex (removeAbility occupant) index
+                                , board = Board.putManAtIndex pieceInHand model.fromIndex model.board
+                                        |> Board.putManAtIndex (removeAbility occupant) index
+                                        |> Board.makeAIMove (Player.getNextPlayer model.whoseTurn)
                                 , legalMoves = []
                                 }, Cmd.none )
 
                             _ -> -- Ability.PieceCaptured
                             ( { model | pieceInHand = Nothing
                               , board = Board.putManAtIndex pieceInHand index model.board
+                                        |> Board.makeAIMove (Player.getNextPlayer model.whoseTurn)
                               , legalMoves = []
                               }, Cmd.none )
-                        else
+                        else -- no opposing prong
                           ( { model | pieceInHand = Nothing
                             , board = Board.putManAtIndex pieceInHand index model.board
+                                        |> Board.makeAIMove (Player.getNextPlayer model.whoseTurn)
                             , legalMoves = []
                             }, Cmd.none )
 
-                      _ ->
+                      _ -> -- no piece in target square
                         ( { model | pieceInHand = Nothing
                           , board = Board.putManAtIndex pieceInHand index model.board
+                                      |> Board.makeAIMove (Player.getNextPlayer model.whoseTurn)
                           , legalMoves = []
                           }, Cmd.none )
-                  else
+                  else -- no legal moves for this piece
                     ( { model | pieceInHand = Nothing
                       , board = Board.putManAtIndex pieceInHand model.fromIndex model.board
                       , legalMoves = []
                       }, Cmd.none )
-                _ ->
+                _ -> -- no piece clicked on, we probably never get here
                   ( model, Cmd.none )
 
         _ ->

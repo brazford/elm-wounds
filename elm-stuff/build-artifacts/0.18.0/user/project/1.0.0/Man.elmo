@@ -377,6 +377,28 @@ var _user$project$Man$hasDefendingAbility = F2(
 			_elm_lang$core$List$length(matches),
 			0) > 0;
 	});
+var _user$project$Man$calculateValue = function (man) {
+	var abilityValue = function (ability) {
+		var _p1 = ability.abilityType;
+		switch (_p1.ctor) {
+			case 'Step':
+				return 10;
+			case 'Slide':
+				return 50;
+			case 'Jump':
+				return 20;
+			default:
+				return 20;
+		}
+	};
+	return _elm_lang$core$List$sum(
+		A2(
+			_elm_lang$core$List$map,
+			function (ability) {
+				return abilityValue(ability);
+			},
+			man.abilities));
+};
 var _user$project$Man$Man = F3(
 	function (a, b, c) {
 		return {abilities: a, name: b, player: c};
