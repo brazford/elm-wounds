@@ -27,17 +27,12 @@ type alias FileRank =
     { x : Int, y : Int }
 
 
-
 type Msg
     = Error
     | WindowSize Window.Size
     | BoardMouseMove Position
     | BoardMouseDown Position
     | BoardMouseUp Position
-
-
-marginScene =
-    50
 
 
 main : Program Never Model Msg
@@ -86,7 +81,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of -- |> Debug.log "msg"
         WindowSize { width, height } ->
-            ( { model | size = Window.Size (width - 2 * marginScene) (height - 100 - 2 * marginScene)
+            ( { model | size = Window.Size ((width // 10) * 4) ((width // 10) * 4)
               , squareSize = (model.size.width // model.board.width)
               }
             , Cmd.none
@@ -245,9 +240,9 @@ view : Model -> Html.Html Msg
 view model =
     Html.div []
         [ scene model
-        , Html.div
+{--        , Html.div
             []
-            [ Html.text (toString model.legalMoves) ]
+            [ Html.text (toString model.legalMoves) ]--}
         ]
 
 
@@ -256,7 +251,6 @@ scene model =
     Svg.svg
         [ width <| toString ( model.board.width * model.squareSize )
         , height <| toString ( model.board.height * model.squareSize )
-        , style ("margin:" ++ px marginScene)
         ]
         [ chessBoardView model
         , legalMovesView model

@@ -21,7 +21,7 @@ drawStep x y squareSize color ability =
 drawJump : Int -> Int -> Int -> String -> Ability -> Svg.Svg msg
 drawJump x y squareSize color ability =
   let
-    thin = squareSize // 40
+    thin = Basics.max (squareSize // 30) 1
     shortLength = squareSize // 5
   in
     Svg.line

@@ -188,26 +188,26 @@ var _user$project$Wounds$px = function (n) {
 		_elm_lang$core$Basics$toString(n),
 		'px');
 };
-var _user$project$Wounds$marginScene = 50;
 var _user$project$Wounds$update = F2(
 	function (msg, model) {
 		var _p8 = msg;
 		switch (_p8.ctor) {
 			case 'WindowSize':
+				var _p9 = _p8._0.width;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							size: A2(_elm_lang$window$Window$Size, _p8._0.width - (2 * _user$project$Wounds$marginScene), (_p8._0.height - 100) - (2 * _user$project$Wounds$marginScene)),
+							size: A2(_elm_lang$window$Window$Size, ((_p9 / 10) | 0) * 4, ((_p9 / 10) | 0) * 4),
 							squareSize: (model.size.width / model.board.width) | 0
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'BoardMouseMove':
 				var pieceInHand = model.pieceInHand;
-				var _p9 = pieceInHand;
-				if (_p9.ctor === 'Just') {
+				var _p10 = pieceInHand;
+				if (_p10.ctor === 'Just') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -219,8 +219,8 @@ var _user$project$Wounds$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'BoardMouseDown':
-				var _p10 = _p8._0;
-				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p10.x, _p10.y);
+				var _p11 = _p8._0;
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p11.x, _p11.y);
 				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
 				var pieceInHand = model.pieceInHand;
 				var one = A2(_elm_lang$core$Debug$log, 'BoardMouseDown: model.pieceInHandPosition ', model.pieceInHandPosition);
@@ -234,7 +234,7 @@ var _user$project$Wounds$update = F2(
 							model,
 							{
 								pieceInHand: occupant,
-								pieceInHandPosition: _p10,
+								pieceInHandPosition: _p11,
 								fromIndex: index,
 								board: A2(_user$project$Board$clearManFromIndex, index, model.board),
 								legalMoves: legalMoves
@@ -245,15 +245,15 @@ var _user$project$Wounds$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'BoardMouseUp':
-				var _p24 = _p8._0;
+				var _p25 = _p8._0;
 				var getDefenseResult = function (thisMaybeMove) {
-					var _p11 = thisMaybeMove;
-					if (_p11.ctor === 'Just') {
-						var _p13 = _p11._0;
-						var defendingAbility = _p13.defendingAbility;
-						var _p12 = _p13.defendingAbility;
-						if (_p12.ctor === 'Just') {
-							return A2(_user$project$Ability$getDefenseResult, _p13.attackingAbility, _p12._0);
+					var _p12 = thisMaybeMove;
+					if (_p12.ctor === 'Just') {
+						var _p14 = _p12._0;
+						var defendingAbility = _p14.defendingAbility;
+						var _p13 = _p14.defendingAbility;
+						if (_p13.ctor === 'Just') {
+							return A2(_user$project$Ability$getDefenseResult, _p14.attackingAbility, _p13._0);
 						} else {
 							return _user$project$Ability$PieceCaptured;
 						}
@@ -267,7 +267,7 @@ var _user$project$Wounds$update = F2(
 							{ctor: '_Tuple2', _0: move.toFile, _1: move.toRank},
 							A2(_user$project$Board$squareFileAndRankFromIndex, model.board, index));
 					});
-				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p24.x, _p24.y);
+				var index = A4(_user$project$Board$squareIndexFromMousePosition, model.board, model.squareSize, _p25.x, _p25.y);
 				var occupant = A2(_user$project$Board$getManFromIndex, model.board, index);
 				var possibleMoves = A2(
 					_elm_lang$core$List$filter,
@@ -277,20 +277,20 @@ var _user$project$Wounds$update = F2(
 					model.legalMoves);
 				var thisMaybeMove = _elm_lang$core$List$head(possibleMoves);
 				var defended = function (defender) {
-					var _p14 = thisMaybeMove;
-					if (_p14.ctor === 'Just') {
-						return A2(_user$project$Man$hasDefendingAbility, defender, _p14._0.attackingAbility);
+					var _p15 = thisMaybeMove;
+					if (_p15.ctor === 'Just') {
+						return A2(_user$project$Man$hasDefendingAbility, defender, _p15._0.attackingAbility);
 					} else {
 						return false;
 					}
 				};
 				var demoteAbility = function (man) {
-					var _p15 = thisMaybeMove;
-					if (_p15.ctor === 'Just') {
-						var defendingAbility = _p15._0.defendingAbility;
-						var _p16 = defendingAbility;
-						if (_p16.ctor === 'Just') {
-							return A2(_user$project$Man$demoteAbility, man, _p16._0);
+					var _p16 = thisMaybeMove;
+					if (_p16.ctor === 'Just') {
+						var defendingAbility = _p16._0.defendingAbility;
+						var _p17 = defendingAbility;
+						if (_p17.ctor === 'Just') {
+							return A2(_user$project$Man$demoteAbility, man, _p17._0);
 						} else {
 							return man;
 						}
@@ -299,12 +299,12 @@ var _user$project$Wounds$update = F2(
 					}
 				};
 				var removeAbility = function (man) {
-					var _p17 = thisMaybeMove;
-					if (_p17.ctor === 'Just') {
-						var defendingAbility = _p17._0.defendingAbility;
-						var _p18 = defendingAbility;
-						if (_p18.ctor === 'Just') {
-							return A2(_user$project$Man$removeAbility, man, _p18._0);
+					var _p18 = thisMaybeMove;
+					if (_p18.ctor === 'Just') {
+						var defendingAbility = _p18._0.defendingAbility;
+						var _p19 = defendingAbility;
+						if (_p19.ctor === 'Just') {
+							return A2(_user$project$Man$removeAbility, man, _p19._0);
 						} else {
 							return man;
 						}
@@ -313,21 +313,21 @@ var _user$project$Wounds$update = F2(
 					}
 				};
 				var pieceInHand = model.pieceInHand;
-				var _p19 = pieceInHand;
-				if (_p19.ctor === 'Just') {
-					var _p23 = _p19._0;
+				var _p20 = pieceInHand;
+				if (_p20.ctor === 'Just') {
+					var _p24 = _p20._0;
 					if (_elm_lang$core$Native_Utils.cmp(
 						_elm_lang$core$List$length(possibleMoves),
 						0) > 0) {
-						var _p20 = occupant;
-						if (_p20.ctor === 'Just') {
-							var _p22 = _p20._0;
-							if (defended(_p22)) {
-								var _p21 = A2(
+						var _p21 = occupant;
+						if (_p21.ctor === 'Just') {
+							var _p23 = _p21._0;
+							if (defended(_p23)) {
+								var _p22 = A2(
 									_elm_lang$core$Debug$log,
 									'getDefenseResult',
 									getDefenseResult(thisMaybeMove));
-								switch (_p21.ctor) {
+								switch (_p22.ctor) {
 									case 'AbilityDemoted':
 										return {
 											ctor: '_Tuple2',
@@ -340,9 +340,9 @@ var _user$project$Wounds$update = F2(
 														_user$project$Player$getNextPlayer(model.whoseTurn),
 														A3(
 															_user$project$Board$putManAtIndex,
-															demoteAbility(_p22),
+															demoteAbility(_p23),
 															index,
-															A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board))),
+															A3(_user$project$Board$putManAtIndex, _p24, model.fromIndex, model.board))),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -359,9 +359,9 @@ var _user$project$Wounds$update = F2(
 														_user$project$Player$getNextPlayer(model.whoseTurn),
 														A3(
 															_user$project$Board$putManAtIndex,
-															removeAbility(_p22),
+															removeAbility(_p23),
 															index,
-															A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board))),
+															A3(_user$project$Board$putManAtIndex, _p24, model.fromIndex, model.board))),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -376,7 +376,7 @@ var _user$project$Wounds$update = F2(
 													board: A2(
 														_user$project$Board$makeAIMove,
 														_user$project$Player$getNextPlayer(model.whoseTurn),
-														A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
+														A3(_user$project$Board$putManAtIndex, _p24, index, model.board)),
 													legalMoves: {ctor: '[]'}
 												}),
 											_1: _elm_lang$core$Platform_Cmd$none
@@ -392,7 +392,7 @@ var _user$project$Wounds$update = F2(
 											board: A2(
 												_user$project$Board$makeAIMove,
 												_user$project$Player$getNextPlayer(model.whoseTurn),
-												A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
+												A3(_user$project$Board$putManAtIndex, _p24, index, model.board)),
 											legalMoves: {ctor: '[]'}
 										}),
 									_1: _elm_lang$core$Platform_Cmd$none
@@ -408,7 +408,7 @@ var _user$project$Wounds$update = F2(
 										board: A2(
 											_user$project$Board$makeAIMove,
 											_user$project$Player$getNextPlayer(model.whoseTurn),
-											A3(_user$project$Board$putManAtIndex, _p23, index, model.board)),
+											A3(_user$project$Board$putManAtIndex, _p24, index, model.board)),
 										legalMoves: {ctor: '[]'}
 									}),
 								_1: _elm_lang$core$Platform_Cmd$none
@@ -421,7 +421,7 @@ var _user$project$Wounds$update = F2(
 								model,
 								{
 									pieceInHand: _elm_lang$core$Maybe$Nothing,
-									board: A3(_user$project$Board$putManAtIndex, _p23, model.fromIndex, model.board),
+									board: A3(_user$project$Board$putManAtIndex, _p24, model.fromIndex, model.board),
 									legalMoves: {ctor: '[]'}
 								}),
 							_1: _elm_lang$core$Platform_Cmd$none
@@ -434,8 +434,8 @@ var _user$project$Wounds$update = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Wounds',
 					{
-						start: {line: 87, column: 5},
-						end: {line: 241, column: 33}
+						start: {line: 82, column: 5},
+						end: {line: 236, column: 33}
 					},
 					_p8)('update');
 		}
@@ -529,15 +529,7 @@ var _user$project$Wounds$scene = function (model) {
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$height(
 					_elm_lang$core$Basics$toString(model.board.height * model.squareSize)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$style(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'margin:',
-							_user$project$Wounds$px(_user$project$Wounds$marginScene))),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			}
 		},
 		{
@@ -565,19 +557,7 @@ var _user$project$Wounds$view = function (model) {
 		{
 			ctor: '::',
 			_0: _user$project$Wounds$scene(model),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(model.legalMoves)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
+			_1: {ctor: '[]'}
 		});
 };
 var _user$project$Wounds$WindowSize = function (a) {

@@ -155,7 +155,7 @@ var _user$project$AbilityView$drawFat = F5(
 var _user$project$AbilityView$drawJump = F5(
 	function (x, y, squareSize, color, ability) {
 		var shortLength = (squareSize / 5) | 0;
-		var thin = (squareSize / 40) | 0;
+		var thin = A2(_elm_lang$core$Basics$max, (squareSize / 30) | 0, 1);
 		return A2(
 			_elm_lang$svg$Svg$line,
 			{
